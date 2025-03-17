@@ -17,6 +17,20 @@ func TestSlice_Add(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name:    "add to non-empty slice at index out of bounds",
+			slice:   []int{1, 2, 3},
+			index:   4,
+			item:    0,
+			wantRes: nil,
+			wantErr: errs.IndexOutOfBoundsErr(3, 4),
+		}, {
+			name:    "add to non-empty slice at index negative",
+			slice:   []int{1, 2, 3},
+			index:   -1,
+			item:    0,
+			wantRes: nil,
+			wantErr: errs.IndexOutOfBoundsErr(3, -1),
+		}, {
 			name:    "add to empty slice",
 			slice:   []int{},
 			index:   0,
@@ -43,20 +57,6 @@ func TestSlice_Add(t *testing.T) {
 			index:   3,
 			item:    0,
 			wantRes: []int{1, 2, 3, 0},
-		}, {
-			name:    "add to non-empty slice at index out of bounds",
-			slice:   []int{1, 2, 3},
-			index:   4,
-			item:    0,
-			wantRes: nil,
-			wantErr: errs.IndexOutOfBoundsErr(3, 4),
-		}, {
-			name:    "add to non-empty slice at index negative",
-			slice:   []int{1, 2, 3},
-			index:   -1,
-			item:    0,
-			wantRes: nil,
-			wantErr: errs.IndexOutOfBoundsErr(3, -1),
 		},
 	}
 
