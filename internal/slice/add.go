@@ -15,11 +15,11 @@ func Add[T any](slice []T, index int, item T) ([]T, error) {
 		return append(slice, item), nil
 	}
 
-	// 扩容一个位置，length + 1
+	// expand one position, length + 1
 	var zeroVal T
 	slice = append(slice, zeroVal)
 
-	// 注意 length 是扩容后的长度所以不需要减 1
+	// note that length is the length after expansion, so no need to subtract 1
 	for i := length; i > index; i-- {
 		if i-1 >= 0 {
 			slice[i] = slice[i-1]

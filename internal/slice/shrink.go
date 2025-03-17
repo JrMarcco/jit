@@ -5,20 +5,20 @@ func shrink(cap int, length int) (int, bool) {
 		return cap, false
 	}
 
-	// 计算容量与长度的比例
+	// calculate the ratio of capacity to length
 	radio := float32(cap) / float32(length)
 
 	switch {
-	// 超大容量：当比例 >= 2 时缩容到 1.5 倍
+	// huge capacity: when the ratio >= 2, shrink to 1.5 times of the original capacity
 	case cap > 4096 && radio >= 2:
 		return int(float32(length) * 1.5), true
-	// 大容量：当比例 >= 2 时缩容到原容量的 50%
+	// large capacity: when the ratio >= 2, shrink to 50% of the original capacity
 	case cap > 1024 && radio >= 2:
 		return cap / 2, true
-	// 中容量：当比例 >= 2.5 时缩容到原容量的 62.5%
+	// medium capacity: when the ratio >= 2.5, shrink to 62.5% of the original capacity
 	case cap > 256 && radio >= 2.5:
 		return int(float32(cap) * 0.625), true
-	// 小容量：当比例 >= 3 时缩容到原容量的 50%
+	// small capacity: when the ratio >= 3, shrink to 50% of the original capacity
 	case radio >= 3:
 		return cap / 2, true
 	}

@@ -14,32 +14,32 @@ func TestSlice_Shrink(t *testing.T) {
 		wantCap   int
 	}{
 		{
-			name:      "空切片",
+			name:      "empty slice",
 			originCap: 0,
 			originLen: 0,
 			wantCap:   0,
 		}, {
-			name:      "超大容量：当比例 >= 2 时缩容到 1.5 倍比例",
+			name:      "huge capacity: when the ratio >= 2, shrink to 1.5 times of the original capacity",
 			originCap: 8192,
 			originLen: 1024,
 			wantCap:   1536,
 		}, {
-			name:      "大容量：当比例 >= 2 时缩容到原容量的 50%",
+			name:      "large capacity: when the ratio >= 2, shrink to 50% of the original capacity",
 			originCap: 2048,
 			originLen: 256,
 			wantCap:   1024,
 		}, {
-			name:      "中容量：当比例 >= 2.5 时缩容到原容量的 62.5%",
+			name:      "medium capacity: when the ratio >= 2.5, shrink to 62.5% of the original capacity",
 			originCap: 1024,
 			originLen: 256,
 			wantCap:   640,
 		}, {
-			name:      "小容量：当比例 >= 3 时缩容到原容量的 50%",
+			name:      "small capacity: when the ratio >= 3, shrink to 50% of the original capacity",
 			originCap: 128,
 			originLen: 8,
 			wantCap:   64,
 		}, {
-			name:      "下小容量：当比例 < 3 时，不缩容",
+			name:      "small capacity: when the ratio < 3, not shrink",
 			originCap: 128,
 			originLen: 64,
 			wantCap:   128,
