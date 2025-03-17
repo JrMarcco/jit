@@ -2,6 +2,7 @@
 *.log
 *.lock
 *.out
+*.sum
 
 **/tmp/
 **/data/
