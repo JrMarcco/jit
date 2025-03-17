@@ -1,0 +1,12 @@
+*.iml
+*.log
+*.lock
+*.out
+
+**/tmp/
+**/data/
+**/log/
+**/logs/
+
+.idea
+.vscode
