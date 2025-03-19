@@ -9,3 +9,7 @@ func IndexOutOfBoundsErr(length int, index int) error {
 func InvalidTypeErr(want string, got any) error {
 	return fmt.Errorf("[easy-kit] invalid type: want %s, got %#v", want, got)
 }
+
+func EmptySliceErr() error {
+	return fmt.Errorf("[easy-kit] slice is empty")
+}

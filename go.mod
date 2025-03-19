@@ -1,4 +1,4 @@
-module github.com/JrMarcco/easy-kit
+module github.com/JrMarcco/easy_kit
 
 go 1.24
 

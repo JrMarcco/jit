@@ -1,6 +1,6 @@
 package slice
 
-import "github.com/JrMarcco/easy-kit/internal/slice"
+import "github.com/JrMarcco/easy_kit/internal/slice"
 
 // Del removes an element at the specified index from the slice.
 func Del[T any](src []T, index int) ([]T, error) {
