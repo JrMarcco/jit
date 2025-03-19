@@ -1,9 +1,9 @@
 package slice
 
 // ContainsFunc checks if the slice contains an element that satisfies the given function.
-func ContainsFunc[T comparable](slice []T, elem T, eq eqFunc[T]) bool {
-	for _, e := range slice {
-		if eq(e, elem) {
+func ContainsFunc[T comparable](slice []T, elem T, eq func(t T) bool) bool {
+	for _, v := range slice {
+		if eq(v) {
 			return true
 		}
 	}
@@ -12,14 +12,16 @@ func ContainsFunc[T comparable](slice []T, elem T, eq eqFunc[T]) bool {
 
 // Contains checks if the slice contains the given element.
 func Contains[T comparable](slice []T, elem T) bool {
-	return ContainsFunc(slice, elem, func(src, dst T) bool { return src == dst })
+	return ContainsFunc(slice, elem, func(t T) bool { return t == elem })
 }
 
 // ContainsAnyFunc checks if the slice contains any of the given elements.
 func ContainsAnyFunc[T comparable](slice []T, elems []T, eq eqFunc[T]) bool {
 	for _, e := range elems {
-		if ContainsFunc(slice, e, eq) {
-			return true
+		for _, v := range slice {
+			if eq(v, e) {
+				return true
+			}
 		}
 	}
 	return false
@@ -27,8 +29,9 @@ func ContainsAnyFunc[T comparable](slice []T, elems []T, eq eqFunc[T]) bool {
 
 // ContainsAny checks if the slice contains any of the given elements.
 func ContainsAny[T comparable](slice []T, elems []T) bool {
+	srcMap := toMap(slice)
 	for _, e := range elems {
-		if ContainsFunc(slice, e, func(src, dst T) bool { return src == dst }) {
+		if _, ok := srcMap[e]; ok {
 			return true
 		}
 	}
@@ -42,7 +45,7 @@ func ContainsAllFunc[T comparable](slice []T, elems []T, eq eqFunc[T]) bool {
 	}
 
 	for _, e := range elems {
-		if !ContainsFunc(slice, e, eq) {
+		if !ContainsFunc(slice, e, func(t T) bool { return eq(e, t) }) {
 			return false
 		}
 	}
@@ -55,8 +58,9 @@ func ContainsAll[T comparable](slice []T, elems []T) bool {
 		return false
 	}
 
+	srcMap := toMap(slice)
 	for _, e := range elems {
-		if !ContainsFunc(slice, e, func(src, dst T) bool { return src == dst }) {
+		if _, ok := srcMap[e]; !ok {
 			return false
 		}
 	}

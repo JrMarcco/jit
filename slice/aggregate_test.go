@@ -1,6 +1,7 @@
 package slice
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/JrMarcco/easy_kit/internal/errs"
@@ -153,4 +154,25 @@ func TestSum(t *testing.T) {
 			assert.Equal(t, tc.wantRes, res)
 		})
 	}
+}
+
+func ExampleMax() {
+	slice := []int{1, 2, 3, 4, 5}
+	max, _ := Max(slice)
+	fmt.Println(max)
+	// Output: 5
+}
+
+func ExampleMin() {
+	slice := []int{1, 2, 3, 4, 5}
+	min, _ := Min(slice)
+	fmt.Println(min)
+	// Output: 1
+}
+
+func ExampleSum() {
+	slice := []int{1, 2, 3, 4, 5}
+	sum := Sum(slice)
+	fmt.Println(sum)
+	// Output: 15
 }

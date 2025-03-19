@@ -2,6 +2,7 @@ package slice
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,44 +54,38 @@ func TestDiffSetFunc(t *testing.T) {
 		name string
 		src  []int
 		dst  []int
-		eq   eqFunc[int]
 		exp  []int
 	}{
 		{
 			name: "empty src",
 			src:  []int{},
 			dst:  []int{1, 2, 3},
-			eq:   eq,
 			exp:  []int{},
 		}, {
 			name: "empty dst",
 			src:  []int{1, 2, 3},
 			dst:  []int{},
-			eq:   eq,
 			exp:  []int{1, 2, 3},
 		}, {
 			name: "no diff",
 			src:  []int{1, 2, 3},
 			dst:  []int{4, 5, 6},
-			eq:   eq,
 			exp:  []int{1, 2, 3},
 		}, {
 			name: "diff",
 			src:  []int{1, 2, 3},
 			dst:  []int{2, 3, 4},
-			eq:   eq,
 			exp:  []int{1},
 		}, {
 			name: "diff with duplicates",
 			src:  []int{1, 2, 3, 4, 5},
 			dst:  []int{2, 3, 4, 6, 7},
-			eq:   eq,
 			exp:  []int{1, 5},
 		},
 	}
 
 	for _, tc := range tcs {
-		got := DiffSetFunc(tc.src, tc.dst, tc.eq)
+		got := DiffSetFunc(tc.src, tc.dst, func(src, dst int) bool { return src == dst })
 		assert.ElementsMatch(t, got, tc.exp)
 	}
 }
@@ -99,6 +94,7 @@ func ExampleDiffSet() {
 	src := []int{1, 2, 3, 4, 5}
 	dst := []int{2, 3, 4, 6, 7}
 	diff := DiffSet(src, dst)
+	sort.Ints(diff)
 	fmt.Println(diff)
 	// Output: [1 5]
 }
