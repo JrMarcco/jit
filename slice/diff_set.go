@@ -20,7 +20,7 @@ func DiffSetFunc[T comparable](src, dst []T, eq eqFunc[T]) []T {
 	slice := make([]T, 0, len(src))
 	for _, v := range src {
 		// check if v is in dst
-		if !ContainsFunc(dst, v, func(t T) bool { return eq(v, t) }) {
+		if !ContainsFunc(dst, func(t T) bool { return eq(v, t) }) {
 			slice = append(slice, v)
 		}
 	}
@@ -28,7 +28,7 @@ func DiffSetFunc[T comparable](src, dst []T, eq eqFunc[T]) []T {
 	ret := make([]T, 0, len(slice))
 	// remove duplicates
 	for idx, val := range slice {
-		if !ContainsFunc(slice[idx+1:], val, func(t T) bool { return eq(val, t) }) {
+		if !ContainsFunc(slice[idx+1:], func(t T) bool { return eq(val, t) }) {
 			ret = append(ret, val)
 		}
 	}

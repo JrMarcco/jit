@@ -38,7 +38,7 @@ func TestContainsFunc(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			res := ContainsFunc(tc.slice, tc.elem, func(t int) bool { return t == tc.elem })
+			res := ContainsFunc(tc.slice, func(t int) bool { return t == tc.elem })
 			assert.Equal(t, tc.wantRes, res)
 		})
 	}
