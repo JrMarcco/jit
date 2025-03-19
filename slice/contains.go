@@ -1,7 +1,7 @@
 package slice
 
 // ContainsFunc checks if the slice contains an element that satisfies the given function.
-func ContainsFunc[T comparable](slice []T, elem T, eq equalFunc[T]) bool {
+func ContainsFunc[T comparable](slice []T, elem T, eq eqFunc[T]) bool {
 	for _, e := range slice {
 		if eq(e, elem) {
 			return true
@@ -16,7 +16,7 @@ func Contains[T comparable](slice []T, elem T) bool {
 }
 
 // ContainsAnyFunc checks if the slice contains any of the given elements.
-func ContainsAnyFunc[T comparable](slice []T, elems []T, eq equalFunc[T]) bool {
+func ContainsAnyFunc[T comparable](slice []T, elems []T, eq eqFunc[T]) bool {
 	for _, e := range elems {
 		if ContainsFunc(slice, e, eq) {
 			return true
@@ -36,7 +36,7 @@ func ContainsAny[T comparable](slice []T, elems []T) bool {
 }
 
 // ContainsAllFunc checks if the slice contains all of the given elements.
-func ContainsAllFunc[T comparable](slice []T, elems []T, eq equalFunc[T]) bool {
+func ContainsAllFunc[T comparable](slice []T, elems []T, eq eqFunc[T]) bool {
 	if slice == nil || elems == nil {
 		return false
 	}

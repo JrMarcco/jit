@@ -1,4 +1,4 @@
 package slice
 
-// equalFunc is a function that compares two elements and returns true if they are equal.
-type equalFunc[T comparable] func(src, dst T) bool
+// eqFunc is a function that compares two elements and returns true if they are equal.
+type eqFunc[T comparable] func(src, dst T) bool

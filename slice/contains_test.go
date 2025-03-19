@@ -6,39 +6,39 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var eqFunc = func(src, dst int) bool { return src == dst }
+var eq = func(src, dst int) bool { return src == dst }
 
 func TestContainsFunc(t *testing.T) {
 	testCases := []struct {
 		name    string
 		slice   []int
 		elem    int
-		eq      equalFunc[int]
+		eq      eqFunc[int]
 		wantRes bool
 	}{
 		{
 			name:    "contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elem:    3,
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: true,
 		}, {
 			name:    "not contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elem:    6,
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "empty slice",
 			slice:   []int{},
 			elem:    1,
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "nil slice",
 			slice:   nil,
 			elem:    1,
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		},
 	}
@@ -94,38 +94,38 @@ func TestContainsAnyFunc(t *testing.T) {
 		name    string
 		slice   []int
 		elems   []int
-		eq      equalFunc[int]
+		eq      eqFunc[int]
 		wantRes bool
 	}{
 		{
 			name:    "contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elems:   []int{3, 6},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: true,
 		}, {
 			name:    "not contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elems:   []int{6, 7},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "empty slice",
 			slice:   []int{},
 			elems:   []int{1, 2, 3},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "nil slice",
 			slice:   nil,
 			elems:   []int{1, 2, 3},
-			eq:      func(src, dst int) bool { return src == dst },
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "nil elems",
 			slice:   []int{1, 2, 3},
 			elems:   nil,
-			eq:      func(src, dst int) bool { return src == dst },
+			eq:      eq,
 			wantRes: false,
 		},
 	}
@@ -184,38 +184,38 @@ func TestContainsAllFunc(t *testing.T) {
 		name    string
 		slice   []int
 		elems   []int
-		eq      equalFunc[int]
+		eq      eqFunc[int]
 		wantRes bool
 	}{
 		{
 			name:    "contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elems:   []int{3, 5},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: true,
 		}, {
 			name:    "not contains",
 			slice:   []int{1, 2, 3, 4, 5},
 			elems:   []int{6, 7},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "empty slice",
 			slice:   []int{},
 			elems:   []int{1, 2, 3},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "nil slice",
 			slice:   nil,
 			elems:   []int{1, 2, 3},
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		}, {
 			name:    "nil elems",
 			slice:   []int{1, 2, 3},
 			elems:   nil,
-			eq:      eqFunc,
+			eq:      eq,
 			wantRes: false,
 		},
 	}
