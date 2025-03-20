@@ -1,5 +1,29 @@
 package slice
 
+// Map maps a slice to a new slice using a function.
+func Map[Src any, Dst any](src []Src, fn func(idx int, src Src) Dst) []Dst {
+	dst := make([]Dst, len(src))
+
+	for i, v := range src {
+		dst[i] = fn(i, v)
+	}
+
+	return dst
+}
+
+// FilterMap filters and maps a slice using a function.
+func FilterMap[Src any, Dst any](src []Src, filter func(idx int, src Src) (Dst, bool)) []Dst {
+	dst := make([]Dst, 0, len(src))
+
+	for i, v := range src {
+		if d, ok := filter(i, v); ok {
+			dst = append(dst, d)
+		}
+	}
+
+	return dst
+}
+
 // toMap converts a slice to a map.
 func toMap[T comparable](slice []T) map[T]struct{} {
 	m := make(map[T]struct{})
