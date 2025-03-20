@@ -10,8 +10,8 @@ func toMap[T comparable](slice []T) map[T]struct{} {
 	return m
 }
 
-// duplicateFunc returns a slice of unique elements.
-func duplicateFunc[T comparable](slice []T, eq eqFunc[T]) []T {
+// deDuplicateFunc returns a slice of unique elements.
+func deDuplicateFunc[T comparable](slice []T, eq eqFunc[T]) []T {
 	res := make([]T, 0, len(slice))
 	for i, v := range slice {
 		if !ContainsFunc(slice[i+1:], func(t T) bool { return eq(v, t) }) {
@@ -21,8 +21,8 @@ func duplicateFunc[T comparable](slice []T, eq eqFunc[T]) []T {
 	return res
 }
 
-// duplicate returns a slice of unique elements.
-func duplicate[T comparable](slice []T) []T {
+// deDuplicate returns a slice of unique elements.
+func deDuplicate[T comparable](slice []T) []T {
 	m := toMap(slice)
 	res := make([]T, 0, len(m))
 	for k := range m {

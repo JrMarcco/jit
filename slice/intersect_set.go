@@ -8,7 +8,7 @@ func IntersectSetFunc[T comparable](src, dst []T, eq eqFunc[T]) []T {
 			res = append(res, v)
 		}
 	}
-	return duplicateFunc(res, eq)
+	return deDuplicateFunc(res, eq)
 }
 
 // IntersectSet returns the intersection of two slices.
@@ -20,5 +20,5 @@ func IntersectSet[T comparable](src, dst []T) []T {
 			res = append(res, v)
 		}
 	}
-	return duplicate(res)
+	return deDuplicate(res)
 }
