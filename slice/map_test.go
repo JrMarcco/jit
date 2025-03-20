@@ -2,6 +2,7 @@ package slice
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -71,6 +72,68 @@ func TestFilterMap(t *testing.T) {
 	for _, tc := range tcs {
 		res := FilterMap(tc.src, tc.fn)
 		assert.ElementsMatch(t, tc.want, res)
+	}
+}
+
+func TestToMap(t *testing.T) {
+	tcs := []struct {
+		name string
+		src  []int
+		fn   func(elem int) string
+		want map[string]int
+	}{
+		{
+			name: "basic",
+			src:  []int{1, 2, 3, 4, 5},
+			fn:   func(elem int) string { return strconv.Itoa(elem) },
+			want: map[string]int{"1": 1, "2": 2, "3": 3, "4": 4, "5": 5},
+		}, {
+			name: "empty",
+			src:  []int{},
+			fn:   func(elem int) string { return strconv.Itoa(elem) },
+			want: map[string]int{},
+		}, {
+			name: "nil",
+			src:  nil,
+			fn:   func(elem int) string { return strconv.Itoa(elem) },
+			want: map[string]int{},
+		},
+	}
+
+	for _, tc := range tcs {
+		res := ToMap(tc.src, tc.fn)
+		assert.Equal(t, tc.want, res)
+	}
+}
+
+func TestToMapWithVal(t *testing.T) {
+	tcs := []struct {
+		name string
+		src  []int
+		fn   func(elem int) (string, int)
+		want map[string]int
+	}{
+		{
+			name: "basic",
+			src:  []int{1, 2, 3, 4, 5},
+			fn:   func(elem int) (string, int) { return strconv.Itoa(elem), elem },
+			want: map[string]int{"1": 1, "2": 2, "3": 3, "4": 4, "5": 5},
+		}, {
+			name: "empty",
+			src:  []int{},
+			fn:   func(elem int) (string, int) { return strconv.Itoa(elem), elem },
+			want: map[string]int{},
+		}, {
+			name: "nil",
+			src:  nil,
+			fn:   func(elem int) (string, int) { return strconv.Itoa(elem), elem },
+			want: map[string]int{},
+		},
+	}
+
+	for _, tc := range tcs {
+		res := ToMapWithVal(tc.src, tc.fn)
+		assert.Equal(t, tc.want, res)
 	}
 }
 

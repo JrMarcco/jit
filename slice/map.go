@@ -24,6 +24,23 @@ func FilterMap[Src any, Dst any](src []Src, filter func(idx int, src Src) (Dst, 
 	return dst
 }
 
+// ToMap converts a slice to a map.
+// the key is the result of the function.
+func ToMap[K comparable, V any](slice []V, fn func(elem V) K) map[K]V {
+	return ToMapWithVal(slice, func(elem V) (K, V) { return fn(elem), elem })
+}
+
+// ToMapWithVal converts a slice to a map.
+// the key and value are the result of the function.
+func ToMapWithVal[E any, K comparable, V any](slice []E, fn func(elem E) (K, V)) map[K]V {
+	res := make(map[K]V, len(slice))
+	for _, v := range slice {
+		k, v := fn(v)
+		res[k] = v
+	}
+	return res
+}
+
 // toMap converts a slice to a map.
 func toMap[T comparable](slice []T) map[T]struct{} {
 	m := make(map[T]struct{})
