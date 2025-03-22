@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSlice_Add(t *testing.T) {
+func TestAdd(t *testing.T) {
 	testCases := []struct {
 		name    string
 		slice   []int

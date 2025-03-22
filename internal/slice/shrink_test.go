@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSlice_Shrink(t *testing.T) {
+func TestShrink(t *testing.T) {
 	testCases := []struct {
 		name      string
 		originCap int

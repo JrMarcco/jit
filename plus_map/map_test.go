@@ -120,6 +120,18 @@ func TestToMap(t *testing.T) {
 			vals:    []int{1, 2},
 			wantRes: nil,
 			wantErr: errs.InvalidKeyValLenErr(),
+		}, {
+			name:    "empty keys",
+			keys:    []int{},
+			vals:    []int{1, 2, 3},
+			wantRes: map[int]int{},
+			wantErr: nil,
+		}, {
+			name:    "empty vals",
+			keys:    []int{1, 2, 3},
+			vals:    []int{},
+			wantRes: map[int]int{},
+			wantErr: nil,
 		},
 	}
 

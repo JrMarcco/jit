@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSlice_Del(t *testing.T) {
+func TestDel(t *testing.T) {
 	testCases := []struct {
 		name    string
 		slice   []int
