@@ -13,7 +13,7 @@ func zeroVal[T easy_kit.RealNumber]() T {
 // Max returns the maximum value in the slice.
 func Max[T easy_kit.RealNumber](slice []T) (T, error) {
 	if len(slice) == 0 {
-		return zeroVal[T](), errs.EmptySliceErr()
+		return zeroVal[T](), errs.ErrEmptySlice()
 	}
 	res := slice[0]
 	for i := 1; i < len(slice); i++ {
@@ -27,7 +27,7 @@ func Max[T easy_kit.RealNumber](slice []T) (T, error) {
 // Min returns the minimum value in the slice.
 func Min[T easy_kit.RealNumber](slice []T) (T, error) {
 	if len(slice) == 0 {
-		return zeroVal[T](), errs.EmptySliceErr()
+		return zeroVal[T](), errs.ErrEmptySlice()
 	}
 
 	res := slice[0]

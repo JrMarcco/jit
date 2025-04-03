@@ -1,13 +1,10 @@
 package slice
 
+import "slices"
+
 // ContainsFunc checks if the slice contains an element that satisfies the given function.
 func ContainsFunc[T comparable](slice []T, eq func(t T) bool) bool {
-	for _, v := range slice {
-		if eq(v) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(slice, eq)
 }
 
 // Contains checks if the slice contains the given element.

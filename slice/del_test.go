@@ -26,7 +26,7 @@ func TestDel(t *testing.T) {
 			slice:   []int{1, 2, 3},
 			index:   -1,
 			wantRes: []int{1, 2, 3},
-			wantErr: errs.IndexOutOfBoundsErr(3, -1),
+			wantErr: errs.ErrIndexOutOfBounds(3, -1),
 		},
 	}
 

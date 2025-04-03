@@ -6,7 +6,7 @@ func Del[T any](slice []T, index int) ([]T, error) {
 	length := len(slice)
 
 	if index < 0 || index >= length {
-		return nil, errs.IndexOutOfBoundsErr(length, index)
+		return nil, errs.ErrIndexOutOfBounds(length, index)
 	}
 
 	for i := index; i < length-1; i++ {

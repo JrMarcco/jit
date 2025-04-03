@@ -8,7 +8,7 @@ func Add[T any](slice []T, index int, item T) ([]T, error) {
 	length := len(slice)
 
 	if index < 0 || index > length {
-		return nil, errs.IndexOutOfBoundsErr(length, index)
+		return nil, errs.ErrIndexOutOfBounds(length, index)
 	}
 
 	if index == length {

@@ -19,12 +19,12 @@ func TestMax(t *testing.T) {
 			name:    "empty slice",
 			slice:   []int{},
 			wantRes: 0,
-			wantErr: errs.EmptySliceErr(),
+			wantErr: errs.ErrEmptySlice(),
 		}, {
 			name:    "nil slice",
 			slice:   nil,
 			wantRes: 0,
-			wantErr: errs.EmptySliceErr(),
+			wantErr: errs.ErrEmptySlice(),
 		}, {
 			name:    "single element",
 			slice:   []int{1},
@@ -73,12 +73,12 @@ func TestMin(t *testing.T) {
 			name:    "empty slice",
 			slice:   []int{},
 			wantRes: 0,
-			wantErr: errs.EmptySliceErr(),
+			wantErr: errs.ErrEmptySlice(),
 		}, {
 			name:    "nil slice",
 			slice:   nil,
 			wantRes: 0,
-			wantErr: errs.EmptySliceErr(),
+			wantErr: errs.ErrEmptySlice(),
 		}, {
 			name:    "single element",
 			slice:   []int{1},
