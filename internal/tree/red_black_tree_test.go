@@ -202,66 +202,66 @@ func TestRBTree_ValidRBTree(t *testing.T) {
 
 func TestRBTree_Insert(t *testing.T) {
 	tcs := []struct {
-		name        string
-		insertNodes []*rbNode[int, int]
-		wantRes     bool
-		wantErr     error
-		wantSize    int64
-		wantKeys    []int
-		wantVals    []int
+		name     string
+		putNodes []*rbNode[int, int]
+		wantRes  bool
+		wantErr  error
+		wantSize int64
+		wantKeys []int
+		wantVals []int
 	}{
 		{
-			name:        "insert one node(insert root node)",
-			insertNodes: []*rbNode[int, int]{{key: 1, val: 1}},
-			wantRes:     true,
-			wantErr:     nil,
-			wantSize:    1,
-			wantKeys:    []int{1},
-			wantVals:    []int{1},
+			name:     "insert one node(insert root node)",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 1,
+			wantKeys: []int{1},
+			wantVals: []int{1},
 		}, {
-			name:        "insert two nodes(insert to black parent node)",
-			insertNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}},
-			wantRes:     true,
-			wantErr:     nil,
-			wantSize:    2,
-			wantKeys:    []int{1, 2},
-			wantVals:    []int{1, 2},
+			name:     "insert two nodes(insert to black parent node)",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 2,
+			wantKeys: []int{1, 2},
+			wantVals: []int{1, 2},
 		}, {
-			name:        "insert multi nodes",
-			insertNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
-			wantRes:     true,
-			wantErr:     nil,
-			wantSize:    5,
-			wantKeys:    []int{1, 2, 3, 4, 5},
-			wantVals:    []int{1, 2, 3, 4, 5},
+			name:     "insert multi nodes",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 5,
+			wantKeys: []int{1, 2, 3, 4, 5},
+			wantVals: []int{1, 2, 3, 4, 5},
 		}, {
-			name:        "insert multi desc order nodes",
-			insertNodes: []*rbNode[int, int]{{key: 5, val: 5}, {key: 4, val: 4}, {key: 3, val: 3}, {key: 2, val: 2}, {key: 1, val: 1}},
-			wantRes:     true,
-			wantErr:     nil,
-			wantSize:    5,
-			wantKeys:    []int{1, 2, 3, 4, 5},
-			wantVals:    []int{1, 2, 3, 4, 5},
+			name:     "insert multi desc order nodes",
+			putNodes: []*rbNode[int, int]{{key: 5, val: 5}, {key: 4, val: 4}, {key: 3, val: 3}, {key: 2, val: 2}, {key: 1, val: 1}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 5,
+			wantKeys: []int{1, 2, 3, 4, 5},
+			wantVals: []int{1, 2, 3, 4, 5},
 		}, {
-			name:        "insert multi disorder nodes",
-			insertNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 3, val: 3}, {key: 2, val: 2}, {key: 4, val: 4}, {key: 5, val: 5}},
-			wantRes:     true,
-			wantErr:     nil,
-			wantSize:    5,
-			wantKeys:    []int{1, 2, 3, 4, 5},
-			wantVals:    []int{1, 2, 3, 4, 5},
+			name:     "insert multi disorder nodes",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 3, val: 3}, {key: 2, val: 2}, {key: 4, val: 4}, {key: 5, val: 5}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 5,
+			wantKeys: []int{1, 2, 3, 4, 5},
+			wantVals: []int{1, 2, 3, 4, 5},
 		}, {
-			name:        "insert same key",
-			insertNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 1, val: 2}},
-			wantErr:     ErrSameRBNode,
+			name:     "insert same key",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 1, val: 2}},
+			wantErr:  ErrSameRBNode,
 		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			rbt := NewRBTree[int, int](cmp())
-			for _, node := range tc.insertNodes {
-				err := rbt.Insert(node.key, node.val)
+			for _, node := range tc.putNodes {
+				err := rbt.Put(node.key, node.val)
 				if err != nil {
 					assert.Equal(t, tc.wantErr, err)
 					return
@@ -274,6 +274,97 @@ func TestRBTree_Insert(t *testing.T) {
 			keys, vals := rbt.Kvs()
 			assert.Equal(t, tc.wantKeys, keys)
 			assert.Equal(t, tc.wantVals, vals)
+		})
+	}
+}
+
+func TestRBTree_Set(t *testing.T) {
+
+	tcs := []struct {
+		name     string
+		putNodes []*rbNode[int, int]
+		setNodes []*rbNode[int, int]
+		wantVals []int
+		wantErr  error
+	}{
+		{
+			name:     "set one node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}},
+			setNodes: []*rbNode[int, int]{{key: 1, val: 2}},
+			wantVals: []int{2},
+			wantErr:  nil,
+		}, {
+			name:     "set multi nodes",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			setNodes: []*rbNode[int, int]{{key: 1, val: 2}, {key: 2, val: 3}},
+			wantVals: []int{2, 3, 3, 4, 5},
+			wantErr:  nil,
+		}, {
+			name:     "set non-existent node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			setNodes: []*rbNode[int, int]{{key: 6, val: 6}},
+			wantErr:  ErrNodeNotFound,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			rbt := NewRBTree[int, int](cmp())
+			for _, node := range tc.putNodes {
+				_ = rbt.Put(node.key, node.val)
+			}
+
+			for _, node := range tc.setNodes {
+				err := rbt.Set(node.key, node.val)
+				if err != nil {
+					assert.Equal(t, tc.wantErr, err)
+					return
+				}
+			}
+
+			vals := rbt.Vals()
+			assert.Equal(t, tc.wantVals, vals)
+		})
+	}
+}
+
+func TestRBTree_Get(t *testing.T) {
+	tcs := []struct {
+		name     string
+		putNodes []*rbNode[int, int]
+		key      int
+		wantVal  int
+		wantErr  error
+	}{
+		{
+			name:     "basic",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}},
+			key:      1,
+			wantVal:  1,
+			wantErr:  nil,
+		}, {
+			name:     "non-existent node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}},
+			key:      3,
+			wantVal:  0,
+			wantErr:  ErrNodeNotFound,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			rbt := NewRBTree[int, int](cmp())
+			for _, node := range tc.putNodes {
+				_ = rbt.Put(node.key, node.val)
+			}
+
+			val, err := rbt.Get(tc.key)
+			if err != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+
+			assert.Equal(t, tc.wantVal, val)
 		})
 	}
 }

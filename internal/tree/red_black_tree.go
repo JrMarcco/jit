@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrSameRBNode = errors.New("[easy_kit] cannot insert same red-black tree node")
+	ErrSameRBNode   = errors.New("[easy_kit] cannot insert same red-black tree node")
+	ErrNodeNotFound = errors.New("[easy_kit] cannot find node in red-black tree")
 )
 
 type color int8
@@ -41,8 +42,76 @@ func (rbt *RBTree[K, V]) Size() int {
 	return rbt.size
 }
 
-func (rbt *RBTree[K, V]) Insert(key K, val V) error {
+func (rbt *RBTree[K, V]) Put(key K, val V) error {
 	return rbt.insertNode(newNode(key, val))
+}
+
+func (rbt *RBTree[K, V]) Del(key K) (V, error) {
+	panic("not implemented")
+}
+
+// Set sets the value of the given key
+func (rbt *RBTree[K, V]) Set(key K, val V) error {
+	if node := rbt.findNode(key); node != nil {
+		node.val = val
+		return nil
+	}
+
+	return ErrNodeNotFound
+}
+
+func (rbt *RBTree[K, V]) Get(key K) (V, error) {
+	if node := rbt.findNode(key); node != nil {
+		return node.val, nil
+	}
+
+	var zero V
+	return zero, ErrNodeNotFound
+}
+
+// Keys returns the keys of the tree
+func (rbt *RBTree[K, V]) Keys() []K {
+	keys := make([]K, 0, rbt.size)
+
+	if rbt.root == nil {
+		return keys
+	}
+
+	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
+		keys = append(keys, node.key)
+	})
+	return keys
+}
+
+// Vals returns the values of the tree
+func (rbt *RBTree[K, V]) Vals() []V {
+	vals := make([]V, 0, rbt.size)
+
+	if rbt.root == nil {
+		return vals
+	}
+
+	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
+		vals = append(vals, node.val)
+	})
+	return vals
+}
+
+// Kvs returns the keys and values of the tree
+func (rbt *RBTree[K, V]) Kvs() ([]K, []V) {
+	keys := make([]K, 0, rbt.size)
+	vals := make([]V, 0, rbt.size)
+
+	if rbt.root == nil {
+		return keys, vals
+	}
+
+	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
+		keys = append(keys, node.key)
+		vals = append(vals, node.val)
+	})
+
+	return keys, vals
 }
 
 // leftRotate left rotate around the node
@@ -307,46 +376,30 @@ func (rbt *RBTree[K, V]) fixupBlackUncleRightChild(node *rbNode[K, V]) *rbNode[K
 	return node
 }
 
-func (rbt *RBTree[K, V]) Keys() []K {
-	keys := make([]K, 0, rbt.size)
-
-	if rbt.root == nil {
-		return keys
-	}
-
-	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
-		keys = append(keys, node.key)
-	})
-	return keys
+func (rbt *RBTree[K, V]) deleteNode(node *rbNode[K, V]) (V, error) {
+	panic("not implemented")
 }
 
-func (rbt *RBTree[K, V]) Values() []V {
-	vals := make([]V, 0, rbt.size)
-
-	if rbt.root == nil {
-		return vals
-	}
-
-	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
-		vals = append(vals, node.val)
-	})
-	return vals
+func (rbt *RBTree[K, V]) deletionFixup(node *rbNode[K, V]) {
+	panic("not implemented")
 }
 
-func (rbt *RBTree[K, V]) Kvs() ([]K, []V) {
-	keys := make([]K, 0, rbt.size)
-	vals := make([]V, 0, rbt.size)
+func (rbt *RBTree[K, V]) findNode(key K) *rbNode[K, V] {
+	node := rbt.root
+	for node != nil {
+		cmp := rbt.cmp(key, node.key)
+		if cmp == 0 {
+			return node
+		}
 
-	if rbt.root == nil {
-		return keys, vals
+		if cmp < 0 {
+			node = node.left
+		} else {
+			node = node.right
+		}
 	}
 
-	rbt.midOrderTraversal(func(node *rbNode[K, V]) {
-		keys = append(keys, node.key)
-		vals = append(vals, node.val)
-	})
-
-	return keys, vals
+	return nil
 }
 
 func (rbt *RBTree[K, V]) midOrderTraversal(visitFn func(node *rbNode[K, V])) {
