@@ -278,6 +278,88 @@ func TestRBTree_Insert(t *testing.T) {
 	}
 }
 
+func TestRBTree_Del(t *testing.T) {
+	tcs := []struct {
+		name     string
+		putNodes []*rbNode[int, int]
+		delNodes []*rbNode[int, int]
+		wantRes  bool
+		wantErr  error
+		wantSize int64
+		wantVals []int
+	}{
+		{
+			name:     "del first node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 1}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 4,
+			wantVals: []int{2, 3, 4, 5},
+		}, {
+			name:     "del last node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 5}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 4,
+			wantVals: []int{1, 2, 3, 4},
+		}, {
+			name:     "del root node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 2}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 4,
+			wantVals: []int{1, 3, 4, 5},
+		}, {
+			name:     "del middle node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 3}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 4,
+			wantVals: []int{1, 2, 4, 5},
+		}, {
+			name:     "del multi nodes",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 2}, {key: 3}, {key: 5}},
+			wantRes:  true,
+			wantErr:  nil,
+			wantSize: 2,
+			wantVals: []int{1, 4},
+		}, {
+			name:     "del non-existent node",
+			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
+			delNodes: []*rbNode[int, int]{{key: 6}},
+			wantErr:  ErrNodeNotFound,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			rbt := NewRBTree[int, int](cmp())
+			for _, node := range tc.putNodes {
+				_ = rbt.Put(node.key, node.val)
+			}
+
+			for _, node := range tc.delNodes {
+				_, err := rbt.Del(node.key)
+				if err != nil {
+					assert.Equal(t, tc.wantErr, err)
+					return
+				}
+
+				assert.Equal(t, tc.wantRes, validRBTree(rbt.root))
+			}
+
+			vals := rbt.Vals()
+			assert.Equal(t, tc.wantVals, vals)
+			assert.Equal(t, tc.wantSize, rbt.Size())
+		})
+	}
+}
+
 func TestRBTree_Set(t *testing.T) {
 
 	tcs := []struct {
