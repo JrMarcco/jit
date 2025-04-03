@@ -140,7 +140,6 @@ func (rbt *RBTree[K, V]) rightRotate(x *rbNode[K, V]) {
 // insertNode insert a new node into the tree
 // red-black specifies that the inserted node must be red.
 func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
-
 	if rbt.root == nil {
 		// if the tree is empty, the inserted node is the root
 		rbt.root = newNode(node.key, node.val)
@@ -148,9 +147,6 @@ func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 		rbt.size++
 		return nil
 	}
-
-	// the first focus on node is the inserted node
-	var focusOnNode *rbNode[K, V]
 
 	cmp := 0
 	parent := &rbNode[K, V]{}
@@ -171,37 +167,42 @@ func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 		}
 	}
 
-	focusOnNode = newNode(node.key, node.val)
-	focusOnNode.parent = parent
+	// the first focus on node is the inserted node
+	insertedNode := newNode(node.key, node.val)
+	insertedNode.parent = parent
 
 	if cmp < 0 {
-		parent.left = focusOnNode
+		parent.left = insertedNode
 	} else {
-		parent.right = focusOnNode
+		parent.right = insertedNode
 	}
 
 	rbt.size++
-	rbt.fixupInsertion(focusOnNode)
+	rbt.fixupInsertion(insertedNode)
 	return nil
 }
 
-// fixupInsertion fix the tree after inserting a new node.
-// the new node is red before insert fixup.
-//
-// the focus on node is the inserted node.
-//
-// case 1: the focus on node's uncle node is red
-// case 2: the focus on node's uncle node is black and the focus on node is the right child of its parent
-// case 3: the focus on node's uncle node is black and the focus on node is the left child of its parent
+// fixupInsertion ensures the red-black tree properties are maintained after insertion.
+// It handles three cases based on the color of the node's uncle:
+// 1. Uncle is red
+// 2. Uncle is black and its parent is left child
+// 3. Uncle is black and its parent is right child
 func (rbt *RBTree[K, V]) fixupInsertion(node *rbNode[K, V]) {
-	uncle := node.getUncle()
+	for node != nil && node != rbt.root && node.parent.getColor() == red {
+		uncle := node.getUncle()
+		if uncle.getColor() == red {
+			node = rbt.fixupRedUncle(node, uncle)
+			continue
+		}
 
-	if uncle.getColor() == red {
-		// case 1: the focus on node's uncle node is red
-		rbt.fixupRedUncle(node, uncle)
-	} else {
-		// case 2 or case 3: the focus on node's uncle node is black
-		rbt.fixupBlackUncle(node)
+		if node.parent == node.getGrandparent().left {
+			// case 2: uncle is black and its parent is left child
+			node = rbt.fixupBlackUncleLeftChild(node)
+			continue
+		}
+
+		// case 3: uncle is black and its parent is right child
+		node = rbt.fixupBlackUncleRightChild(node)
 	}
 
 	// the new inserted node is root or the new inserted node's parent node is black,
@@ -209,93 +210,101 @@ func (rbt *RBTree[K, V]) fixupInsertion(node *rbNode[K, V]) {
 	rbt.root.setColor(black)
 }
 
-// fixupRedUncle fixup case 1 and return new focus on node
-// the focus on node's uncle node is red
+// fixupRedUncle handles the case where the node's uncle is red.
+// It recolors the parent and uncle to black and the grandparent to red,
+// then moves the focus to the grandparent.
 //
 //			    b(c)							           r(c)
 //			  /	    \							         /     \
 //		  r(b)		r(d)							  b(b)	   b(d)
 //		 /	\	    /	\		       =>		     /	\	   /   \
-//	  b(z)	r(a)  b(p)  b(q)					  b(z)	r(a)  b(p)  b(q)
-//			/  \							       		/  \
-//		b(x)   b(y)								    b(x)   b(y)
+//	  b(z)	r(x)  b(p)  b(q)					  b(z)	r(x)  b(p)  b(q)
 //
-// focus on node a's uncle node d is red.
-// 1. change focus on node's parent node b and uncle node d to black
-// 2. change focus on node's grandparent node c to red
-// 3. change focus on node to its grandparent node c
-// 4. jump to fixupBlackUncle* (case 2 or case 3)
-func (rbt *RBTree[K, V]) fixupRedUncle(node *rbNode[K, V], uncle *rbNode[K, V]) {
+// 1. change focus on node x's parent node b and uncle node d to black.
+func (rbt *RBTree[K, V]) fixupRedUncle(node *rbNode[K, V], uncle *rbNode[K, V]) *rbNode[K, V] {
 	grandparent := node.getGrandparent()
 
 	node.parent.setColor(black)
 	uncle.setColor(black)
 	grandparent.setColor(red)
 
-	rbt.fixupBlackUncle(grandparent)
+	return grandparent
 }
 
-// fixupBlackUncle fixup case 2 or case 3
-func (rbt *RBTree[K, V]) fixupBlackUncle(node *rbNode[K, V]) {
-	if node.parent == nil {
-		return
-	}
-
-	if node == node.parent.right {
-		// case 2: the focus on node is the right child of its parent
-		rbt.fixupBlackUncleRightChild(node)
-	} else {
-		// case 3: the focus on node is the left child of its parent
-		rbt.fixupBlackUncleLeftChild(node)
-	}
-}
-
-// fixupBlackUncleRightChild fixup case 2
-// the focus on node's uncle node is black and the focus on node is the right child of its parent
+// fixupBlackUncleLeftChild handles the case where the node's uncle is black,
+// and its parent is left child.
 //
 //			    b(c)							           b(c)
 //			  /	    \							         /     \
-//		  r(b)		b(d)							  r(a)	   b(d)
-//		 /	\	    /	\		       =>		     /	\	   /   \
-//	  b(z)	r(a)  b(p)  b(q)					  r(b)	b(y)  b(p)  b(q)
-//			/  \							     /  \
-//		b(x)   b(y)							  b(z)  b(x)
+//		  b(b)		r(d)							  b(b)	   r(d)
+//		 /	\	    /  \		       =>		     /	\	   /   \
+//	  b(z)	r(y) b(p)  b(q)					      b(z)	r(x) b(p)  b(q)
+//			   \							       		/
+//		       r(x)								     r(y)
 //
-// focus on node a's uncle node d is black, and a is the right child of its parent b.
-// 1. change focus on node to its parent node（focus on node b）
-// 2. left rotate around focus on node b
-// 3. jump to fixupBlackUncleAndLeftChild (case 3)
-func (rbt *RBTree[K, V]) fixupBlackUncleRightChild(node *rbNode[K, V]) {
-	node = node.parent
-	rbt.leftRotate(node)
-
-	rbt.fixupBlackUncleLeftChild(node)
-}
-
-// fixupBlackUncleLeftChild fixup case 3
-// the focus on node's uncle node is black and the focus on node is the left child of its parent
+// 1. if the focus on node x is right child of its parent, change focus on node to its parent node y.
+// 2. left rotate around the focus on node y.
 //
-//			      b(c)					          r(b)								  b(b)
-//				/     \					        /      \							/     \
-//	        r(b)	  b(d)				      r(a)	   b(c)						r(a)	  r(c)
-//	        /  \      /   \		   =>        /  \	   /   \	      =>       /  \       /  \
-//	     r(a)  b(y)  b(p)  b(q)           b(z)  b(x)  b(y)  b(d)			b(z)  b(x)  b(y)  b(d)
-//	    /   \                                            	/   \		                      /   \
-//	 b(z)   b(x)										  b(p)  b(q)					     b(p)  b(q)
+//			   b(c)	   	                   b(c)                     r(b)
+//			  /	  \	   		              /   \                    /   \
+//		  b(b)	   r(d)			      r(b)	   r(d)             b(z)   b(c)
+//		 /	\	   /  \	     =>	     /	\	   /  \	     =>            /   \
+//	  b(z)	r(x) b(p) b(q)		  b(z)	b(x) b(p) b(q)              b(x)   r(d)
+//			/                           /                            /     /  \
+//		  r(y)                        r(y)                        r(y)    b(p)  b(q)
 //
-// focus on node a's uncle node d is black, and a is the left child of its parent b.
-// 1. right rotate around focus on node a's grandparent node c
-// 2. swap color between focus on node a's parent node b and a's brother node c
-// 3. finish
-func (rbt *RBTree[K, V]) fixupBlackUncleLeftChild(node *rbNode[K, V]) {
-	grandparent := node.getGrandparent()
-	if grandparent == nil {
-		return
+// 3. change focus on node y's parent to black.
+// 4. change focus on node y's grandparent to red.
+// 5. right rotate around the focus on node y's grandparent b.
+func (rbt *RBTree[K, V]) fixupBlackUncleLeftChild(node *rbNode[K, V]) *rbNode[K, V] {
+	if node == node.parent.right {
+		node = node.parent
+		rbt.leftRotate(node)
 	}
 
 	node.parent.setColor(black)
-	grandparent.setColor(red)
-	rbt.rightRotate(grandparent)
+	node.getGrandparent().setColor(red)
+	rbt.rightRotate(node.getGrandparent())
+
+	return node.parent
+}
+
+// fixupBlackUncleRightChild handles the case where the node's uncle is black,
+// and its parent is right child.
+//
+//			    b(c)							           b(c)
+//			  /	    \							         /     \
+//		  r(b)		b(d)							  r(b)	   b(d)
+//		 /	\	    /  \		       =>		     /	\	   /  \
+//	  b(p)	b(q) b(z) r(y)					      b(p)	b(q) b(z) r(x)
+//			          /                                             \
+//		             r(x)                                           r(y)
+//
+// 1. if the focus on node x is left child of its parent, change focus on node to its parent node y.
+// 2. right rotate around the focus on node y.
+//
+//			   b(c)	   	                   b(c)                         r(d)
+//			  /	  \	   		              /   \                        /   \
+//		  r(b)	   b(d)			      r(b)	   r(d)                 b(c)   b(x)
+//		 /	\	   /  \	     =>	     /	\	   /  \	     =>         /  \     \
+//	  b(p)	b(q) b(z) r(x)		  b(p)	b(q) b(z) b(x)            r(b) b(z)  r(y)
+//			          	\                           \             /  \
+//		             	r(y)						r(y)	   b(p)  b(q)
+//
+// 3. change focus on node y's parent to black.
+// 4. change focus on node y's grandparent to red.
+// 5. left rotate around the focus on node y's grandparent b.
+func (rbt *RBTree[K, V]) fixupBlackUncleRightChild(node *rbNode[K, V]) *rbNode[K, V] {
+	if node == node.parent.left {
+		node = node.parent
+		rbt.rightRotate(node)
+	}
+
+	node.parent.setColor(black)
+	node.getGrandparent().setColor(red)
+	rbt.leftRotate(node.getGrandparent())
+
+	return node
 }
 
 func (rbt *RBTree[K, V]) Keys() []K {
