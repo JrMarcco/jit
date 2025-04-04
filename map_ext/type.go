@@ -5,6 +5,6 @@ type IMap[K any, V any] interface {
 	Keys() []K
 	Vals() []V
 	Put(key K, val V) error
-	Get(key K) (V, bool)
 	Del(key K) (V, bool)
+	Get(key K) (V, bool)
 }

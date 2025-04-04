@@ -63,9 +63,11 @@ func (rbt *RBTree[K, V]) Del(key K) (V, error) {
 		return zero, ErrNodeNotFound
 	}
 
+	nodeVal := node.val
+
 	rbt.deleteNode(node)
 	rbt.size--
-	return node.val, nil
+	return nodeVal, nil
 }
 
 // Set sets the value of the given key
@@ -451,13 +453,19 @@ func (rbt *RBTree[K, V]) deleteNode(node *rbNode[K, V]) {
 		// if the deleted node has both left and right child,
 		// find the successor of the deleted node.
 		successor := rbt.findSuccessor(deletedNode)
+
+		// copy the successor's key and val to the deleted node
 		deletedNode.key = successor.key
 		deletedNode.val = successor.val
+
+		// replace the deleted node with the successor
+		// the successor will be deleted in the next step
 		deletedNode = successor
 	}
 
 	var replacement *rbNode[K, V]
 
+	// now deletedNode is the successor of the original deleted node
 	// if the deleted node has left child, the replacement is the left child
 	// otherwise, the replacement is the right child
 	if deletedNode.left != nil {
@@ -524,6 +532,7 @@ func (rbt *RBTree[K, V]) deletionFixup(node *rbNode[K, V]) {
 	node.setColor(black)
 }
 
+// deletionFixupLeftChild fixes the red-black tree properties after deletion for the left child.
 func (rbt *RBTree[K, V]) deletionFixupLeftChild(node *rbNode[K, V]) *rbNode[K, V] {
 	// right child of the parent node
 	rcNode := node.parent.right
@@ -555,6 +564,7 @@ func (rbt *RBTree[K, V]) deletionFixupLeftChild(node *rbNode[K, V]) *rbNode[K, V
 	return rbt.root
 }
 
+// deletionFixupRightChild fixes the red-black tree properties after deletion for the right child.
 func (rbt *RBTree[K, V]) deletionFixupRightChild(node *rbNode[K, V]) *rbNode[K, V] {
 	// left child of the parent node
 	lcNode := node.parent.left
