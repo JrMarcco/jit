@@ -1,5 +1,7 @@
 package set
 
+var _ Set[any] = (*MapSet[any])(nil)
+
 type MapSet[T comparable] struct {
 	m map[T]struct{}
 }
@@ -23,7 +25,7 @@ func (s *MapSet[T]) Exist(key T) bool {
 	return ok
 }
 
-func (s *MapSet[T]) Keys() []T {
+func (s *MapSet[T]) Elems() []T {
 	keys := make([]T, 0, len(s.m))
 	for key := range s.m {
 		keys = append(keys, key)

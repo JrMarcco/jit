@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	errNilComparator = errors.New("[easy-kit] tree map comparator can not be nil")
+	ErrNilComparator = errors.New("[easy-kit] comparator can not be nil")
 )
 
 var _ IMap[any, any] = (*TreeMap[any, any])(nil)
@@ -20,7 +20,7 @@ type TreeMap[K any, V any] struct {
 
 func NewTreeMap[K any, V any](cmp easy_kit.Comparator[K]) (*TreeMap[K, V], error) {
 	if cmp == nil {
-		return nil, errNilComparator
+		return nil, ErrNilComparator
 	}
 
 	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil

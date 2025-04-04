@@ -25,7 +25,7 @@ func TestNewTreeMapWithMap(t *testing.T) {
 		{
 			name:    "nil comparator",
 			cmp:     nil,
-			wantErr: errNilComparator,
+			wantErr: ErrNilComparator,
 		}, {
 			name:     "empty map",
 			cmp:      cmp(),
