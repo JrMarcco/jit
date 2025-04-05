@@ -7,8 +7,6 @@ import (
 
 var _ Set[any] = (*TreeSet[any])(nil)
 
-var ErrNilComparator = map_ext.ErrNilComparator
-
 type TreeSet[T any] struct {
 	tm *map_ext.TreeMap[T, struct{}]
 }

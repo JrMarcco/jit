@@ -9,10 +9,11 @@ import (
 // overcapacity
 func TestMapSet_Add(t *testing.T) {
 	tcs := []struct {
-		name    string
-		size    int
-		keys    []int
-		wantRes map[int]struct{}
+		name     string
+		size     int
+		keys     []int
+		wantSize int
+		wantRes  map[int]struct{}
 	}{
 		{
 			name:    "add vals",

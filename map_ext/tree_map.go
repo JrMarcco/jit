@@ -7,11 +7,7 @@ import (
 	"github.com/JrMarcco/easy_kit/internal/tree"
 )
 
-var (
-	ErrNilComparator = errors.New("[easy-kit] comparator can not be nil")
-)
-
-var _ IMap[any, any] = (*TreeMap[any, any])(nil)
+var _ Map[any, any] = (*TreeMap[any, any])(nil)
 
 // TreeMap is a map that is implemented using a red-black tree.
 type TreeMap[K any, V any] struct {
@@ -58,7 +54,7 @@ func (tm *TreeMap[K, V]) Get(k K) (V, bool) {
 	return v, err == nil
 }
 
-func (tm *TreeMap[K, V]) Size() int64 {
+func (tm *TreeMap[K, V]) Size() int {
 	return tm.tree.Size()
 }
 

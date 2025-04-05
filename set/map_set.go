@@ -32,3 +32,7 @@ func (s *MapSet[T]) Elems() []T {
 	}
 	return keys
 }
+
+func (s *MapSet[T]) Size() int {
+	return len(s.m)
+}

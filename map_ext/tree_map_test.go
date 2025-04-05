@@ -102,7 +102,7 @@ func TestTreeMap_Del(t *testing.T) {
 		name     string
 		initData []kv
 		delKeys  []delParam
-		wantSize int64
+		wantSize int
 		wantVals []string
 	}{
 		{

@@ -206,7 +206,7 @@ func TestRBTree_Insert(t *testing.T) {
 		putNodes []*rbNode[int, int]
 		wantRes  bool
 		wantErr  error
-		wantSize int64
+		wantSize int
 		wantKeys []int
 		wantVals []int
 	}{
@@ -269,7 +269,7 @@ func TestRBTree_Insert(t *testing.T) {
 			}
 
 			assert.Equal(t, tc.wantRes, validRBTree(rbt.root))
-			assert.Equal(t, tc.wantSize, int64(rbt.Size()))
+			assert.Equal(t, tc.wantSize, rbt.Size())
 
 			keys, vals := rbt.Kvs()
 			assert.Equal(t, tc.wantKeys, keys)
@@ -285,7 +285,7 @@ func TestRBTree_Del(t *testing.T) {
 		delNodes []*rbNode[int, int]
 		wantRes  bool
 		wantErr  error
-		wantSize int64
+		wantSize int
 		wantVals []int
 	}{
 		{

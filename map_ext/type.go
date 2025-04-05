@@ -1,7 +1,7 @@
 package map_ext
 
-type IMap[K any, V any] interface {
-	Size() int64
+type Map[K any, V any] interface {
+	Size() int
 	Keys() []K
 	Vals() []V
 	Put(key K, val V) error
