@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/JrMarcco/easy_kit"
+	"github.com/JrMarcco/easy_kit/internal/errs"
 	"github.com/JrMarcco/easy_kit/internal/tree"
 )
 
@@ -37,7 +38,7 @@ func NewTreeMapWithMap[K comparable, V any](cmp easy_kit.Comparator[K], m map[K]
 
 func (tm *TreeMap[K, V]) Put(k K, v V) error {
 	err := tm.tree.Put(k, v)
-	if err != nil && errors.Is(err, tree.ErrSameRBNode) {
+	if err != nil && errors.Is(err, errs.ErrSameRBNode) {
 		// if the key already exists, update the value
 		return tm.tree.Set(k, v)
 	}

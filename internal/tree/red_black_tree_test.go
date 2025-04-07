@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/JrMarcco/easy_kit"
+	"github.com/JrMarcco/easy_kit/internal/errs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -253,7 +254,7 @@ func TestRBTree_Insert(t *testing.T) {
 		}, {
 			name:     "insert same key",
 			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 1, val: 2}},
-			wantErr:  ErrSameRBNode,
+			wantErr:  errs.ErrSameRBNode,
 		},
 	}
 
@@ -332,7 +333,7 @@ func TestRBTree_Del(t *testing.T) {
 			name:     "del non-existent node",
 			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
 			delNodes: []*rbNode[int, int]{{key: 6}},
-			wantErr:  ErrNodeNotFound,
+			wantErr:  errs.ErrNodeNotFound,
 		},
 	}
 
@@ -385,7 +386,7 @@ func TestRBTree_Set(t *testing.T) {
 			name:     "set non-existent node",
 			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}, {key: 3, val: 3}, {key: 4, val: 4}, {key: 5, val: 5}},
 			setNodes: []*rbNode[int, int]{{key: 6, val: 6}},
-			wantErr:  ErrNodeNotFound,
+			wantErr:  errs.ErrNodeNotFound,
 		},
 	}
 
@@ -429,7 +430,7 @@ func TestRBTree_Get(t *testing.T) {
 			putNodes: []*rbNode[int, int]{{key: 1, val: 1}, {key: 2, val: 2}},
 			key:      3,
 			wantVal:  0,
-			wantErr:  ErrNodeNotFound,
+			wantErr:  errs.ErrNodeNotFound,
 		},
 	}
 

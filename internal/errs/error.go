@@ -1,6 +1,14 @@
 package errs
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var (
+	ErrSameRBNode   = errors.New("[easy_kit] cannot insert same red-black tree node")
+	ErrNodeNotFound = errors.New("[easy_kit] cannot find node in red-black tree")
+)
 
 func NilErr(name string) error {
 	return fmt.Errorf("[easy-kit] %s is nil", name)

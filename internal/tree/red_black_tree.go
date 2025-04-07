@@ -1,14 +1,8 @@
 package tree
 
 import (
-	"errors"
-
 	"github.com/JrMarcco/easy_kit"
-)
-
-var (
-	ErrSameRBNode   = errors.New("[easy_kit] cannot insert same red-black tree node")
-	ErrNodeNotFound = errors.New("[easy_kit] cannot find node in red-black tree")
+	"github.com/JrMarcco/easy_kit/internal/errs"
 )
 
 // color specifies the color of the node
@@ -60,7 +54,7 @@ func (rbt *RBTree[K, V]) Del(key K) (V, error) {
 	node := rbt.findNode(key)
 	if node == nil {
 		var zero V
-		return zero, ErrNodeNotFound
+		return zero, errs.ErrNodeNotFound
 	}
 
 	nodeVal := node.val
@@ -77,7 +71,7 @@ func (rbt *RBTree[K, V]) Set(key K, val V) error {
 		return nil
 	}
 
-	return ErrNodeNotFound
+	return errs.ErrNodeNotFound
 }
 
 func (rbt *RBTree[K, V]) Get(key K) (V, error) {
@@ -86,7 +80,7 @@ func (rbt *RBTree[K, V]) Get(key K) (V, error) {
 	}
 
 	var zero V
-	return zero, ErrNodeNotFound
+	return zero, errs.ErrNodeNotFound
 }
 
 // Keys returns the keys of the tree
@@ -245,7 +239,7 @@ func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 
 		cmp = rbt.cmp(node.key, currNode.key)
 		if cmp == 0 {
-			return ErrSameRBNode
+			return errs.ErrSameRBNode
 		}
 
 		if cmp < 0 {
