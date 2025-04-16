@@ -1,22 +1,22 @@
-package map_ext
+package mapext
 
 import (
 	"testing"
 
-	"github.com/JrMarcco/easy_kit"
-	"github.com/JrMarcco/easy_kit/slice"
+	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/easy-kit/slice"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func cmp() easy_kit.Comparator[int] {
+func cmp() easykit.Comparator[int] {
 	return func(a, b int) int { return a - b }
 }
 
 func TestNewTreeMapWithMap(t *testing.T) {
 	tcs := []struct {
 		name     string
-		cmp      easy_kit.Comparator[int]
+		cmp      easykit.Comparator[int]
 		m        map[int]string
 		wantKeys []int
 		wantVals []string

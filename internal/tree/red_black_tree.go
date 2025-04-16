@@ -1,8 +1,8 @@
 package tree
 
 import (
-	"github.com/JrMarcco/easy_kit"
-	"github.com/JrMarcco/easy_kit/internal/errs"
+	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/easy-kit/internal/errs"
 )
 
 // color specifies the color of the node
@@ -25,10 +25,10 @@ const (
 type RBTree[K any, V any] struct {
 	root *rbNode[K, V]
 	size int
-	cmp  easy_kit.Comparator[K]
+	cmp  easykit.Comparator[K]
 }
 
-func NewRBTree[K any, V any](cmp easy_kit.Comparator[K]) *RBTree[K, V] {
+func NewRBTree[K any, V any](cmp easykit.Comparator[K]) *RBTree[K, V] {
 	return &RBTree[K, V]{
 		root: nil,
 		size: 0,

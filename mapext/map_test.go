@@ -1,9 +1,9 @@
-package map_ext
+package mapext
 
 import (
 	"testing"
 
-	"github.com/JrMarcco/easy_kit/internal/errs"
+	"github.com/JrMarcco/easy-kit/internal/errs"
 	"github.com/stretchr/testify/assert"
 )
 

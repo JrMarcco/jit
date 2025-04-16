@@ -1,11 +1,11 @@
-package map_ext
+package mapext
 
 import (
 	"errors"
 
-	"github.com/JrMarcco/easy_kit"
-	"github.com/JrMarcco/easy_kit/internal/errs"
-	"github.com/JrMarcco/easy_kit/internal/tree"
+	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/easy-kit/internal/errs"
+	"github.com/JrMarcco/easy-kit/internal/tree"
 )
 
 var _ Map[any, any] = (*TreeMap[any, any])(nil)
@@ -15,7 +15,7 @@ type TreeMap[K any, V any] struct {
 	tree *tree.RBTree[K, V]
 }
 
-func NewTreeMap[K any, V any](cmp easy_kit.Comparator[K]) (*TreeMap[K, V], error) {
+func NewTreeMap[K any, V any](cmp easykit.Comparator[K]) (*TreeMap[K, V], error) {
 	if cmp == nil {
 		return nil, ErrNilComparator
 	}
@@ -23,7 +23,7 @@ func NewTreeMap[K any, V any](cmp easy_kit.Comparator[K]) (*TreeMap[K, V], error
 	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil
 }
 
-func NewTreeMapWithMap[K comparable, V any](cmp easy_kit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
+func NewTreeMapWithMap[K comparable, V any](cmp easykit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
 	treeMap, err := NewTreeMap[K, V](cmp)
 	if err != nil {
 		return nil, err

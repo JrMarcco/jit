@@ -1,4 +1,4 @@
-package easy_kit
+package easykit
 
 func Ptr[T any](v T) *T {
 	return &v

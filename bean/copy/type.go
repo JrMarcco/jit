@@ -1,9 +1,9 @@
 package copier
 
 import (
-	"github.com/JrMarcco/easy_kit/bean/copy/converter"
-	"github.com/JrMarcco/easy_kit/bean/opt"
-	"github.com/JrMarcco/easy_kit/set"
+	"github.com/JrMarcco/easy-kit/bean/copy/converter"
+	"github.com/JrMarcco/easy-kit/bean/opt"
+	"github.com/JrMarcco/easy-kit/set"
 )
 
 // Copier is a type that can copy a source object to a destination object.

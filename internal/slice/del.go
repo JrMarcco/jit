@@ -1,6 +1,6 @@
 package slice
 
-import "github.com/JrMarcco/easy_kit/internal/errs"
+import "github.com/JrMarcco/easy-kit/internal/errs"
 
 func Del[T any](slice []T, index int) ([]T, error) {
 	length := len(slice)

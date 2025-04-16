@@ -1,4 +1,4 @@
-package map_ext
+package mapext
 
 type Map[K any, V any] interface {
 	Size() int

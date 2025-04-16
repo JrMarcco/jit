@@ -1,18 +1,18 @@
 package set
 
 import (
-	"github.com/JrMarcco/easy_kit"
-	"github.com/JrMarcco/easy_kit/map_ext"
+	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/easy-kit/mapext"
 )
 
 var _ Set[any] = (*TreeSet[any])(nil)
 
 type TreeSet[T any] struct {
-	tm *map_ext.TreeMap[T, struct{}]
+	tm *mapext.TreeMap[T, struct{}]
 }
 
-func NewTreeSet[T any](cmp easy_kit.Comparator[T]) (*TreeSet[T], error) {
-	tm, err := map_ext.NewTreeMap[T, struct{}](cmp)
+func NewTreeSet[T any](cmp easykit.Comparator[T]) (*TreeSet[T], error) {
+	tm, err := mapext.NewTreeMap[T, struct{}](cmp)
 	if err != nil {
 		return nil, err
 	}

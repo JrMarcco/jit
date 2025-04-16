@@ -1,17 +1,17 @@
 package slice
 
 import (
-	"github.com/JrMarcco/easy_kit"
-	"github.com/JrMarcco/easy_kit/internal/errs"
+	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/easy-kit/internal/errs"
 )
 
-func zeroVal[T easy_kit.RealNumber]() T {
+func zeroVal[T easykit.RealNumber]() T {
 	var zero T
 	return zero
 }
 
 // Max returns the maximum value in the slice.
-func Max[T easy_kit.RealNumber](slice []T) (T, error) {
+func Max[T easykit.RealNumber](slice []T) (T, error) {
 	if len(slice) == 0 {
 		return zeroVal[T](), errs.ErrEmptySlice()
 	}
@@ -25,7 +25,7 @@ func Max[T easy_kit.RealNumber](slice []T) (T, error) {
 }
 
 // Min returns the minimum value in the slice.
-func Min[T easy_kit.RealNumber](slice []T) (T, error) {
+func Min[T easykit.RealNumber](slice []T) (T, error) {
 	if len(slice) == 0 {
 		return zeroVal[T](), errs.ErrEmptySlice()
 	}
@@ -40,7 +40,7 @@ func Min[T easy_kit.RealNumber](slice []T) (T, error) {
 }
 
 // Sum returns the sum of the slice.
-func Sum[T easy_kit.RealNumber](slice []T) T {
+func Sum[T easykit.RealNumber](slice []T) T {
 	ret := zeroVal[T]()
 
 	if len(slice) == 0 {

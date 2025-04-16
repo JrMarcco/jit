@@ -3,19 +3,19 @@ package set
 import (
 	"testing"
 
-	"github.com/JrMarcco/easy_kit"
+	easykit "github.com/JrMarcco/easy-kit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var cmp = easy_kit.Comparator[int](func(a, b int) int {
+var cmp = easykit.Comparator[int](func(a, b int) int {
 	return a - b
 })
 
 func TestTreeSet_Add(t *testing.T) {
 	tcs := []struct {
 		name      string
-		cmp       easy_kit.Comparator[int]
+		cmp       easykit.Comparator[int]
 		initElems []int
 		wantElems []int
 		wantErr   error

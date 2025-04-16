@@ -1,4 +1,4 @@
-package easy_kit
+package easykit
 
 import (
 	"testing"

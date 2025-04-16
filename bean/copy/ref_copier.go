@@ -7,8 +7,8 @@ import (
 
 	"maps"
 
-	"github.com/JrMarcco/easy_kit/bean/opt"
-	"github.com/JrMarcco/easy_kit/set"
+	"github.com/JrMarcco/easy-kit/bean/opt"
+	"github.com/JrMarcco/easy-kit/set"
 )
 
 type RefCopier[S any, D any] struct {

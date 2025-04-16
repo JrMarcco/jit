@@ -1,6 +1,6 @@
-package map_ext
+package mapext
 
-import "github.com/JrMarcco/easy_kit/internal/errs"
+import "github.com/JrMarcco/easy-kit/internal/errs"
 
 // Keys returns a slice of the keys in the map.
 func Keys[K comparable, V any](m map[K]V) []K {
