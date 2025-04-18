@@ -10,7 +10,7 @@ import (
 
 var _ Map[any, any] = (*TreeMap[any, any])(nil)
 
-// TreeMap is a map that is implemented using a red-black tree.
+// TreeMap is a map implemented using a red-black tree.
 type TreeMap[K any, V any] struct {
 	tree *tree.RBTree[K, V]
 }
