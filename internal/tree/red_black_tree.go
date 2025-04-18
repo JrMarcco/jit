@@ -24,7 +24,7 @@ const (
 //  4. every path from root to leaf node has the same number of black nodes
 type RBTree[K any, V any] struct {
 	root *rbNode[K, V]
-	size int
+	size int64
 	cmp  easykit.Comparator[K]
 }
 
@@ -36,7 +36,7 @@ func NewRBTree[K any, V any](cmp easykit.Comparator[K]) *RBTree[K, V] {
 	}
 }
 
-func (rbt *RBTree[K, V]) Size() int {
+func (rbt *RBTree[K, V]) Size() int64 {
 	return rbt.size
 }
 

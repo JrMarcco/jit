@@ -55,7 +55,7 @@ func (tm *TreeMap[K, V]) Get(k K) (V, bool) {
 	return v, err == nil
 }
 
-func (tm *TreeMap[K, V]) Size() int {
+func (tm *TreeMap[K, V]) Size() int64 {
 	return tm.tree.Size()
 }
 

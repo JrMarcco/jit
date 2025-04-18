@@ -1,7 +1,7 @@
 package mapext
 
 type Map[K any, V any] interface {
-	Size() int
+	Size() int64
 	Keys() []K
 	Vals() []V
 	Put(key K, val V) error
