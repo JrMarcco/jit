@@ -17,9 +17,9 @@ const (
 )
 
 // RBTree is a red-black tree
-//  1. root node is black
-//  2. every leaf node is black or nil, that means leaf node do not store any value
-//     2.1 also for space saving implementation share a black empty node
+//  1. the root node is black
+//  2. every leaf node is black or nil; that means a leaf node does not store any value
+//     2.1 also for space-saving implementation share a black empty node
 //  3. any neighboring node (parent and child) cannot be red at the same time
 //  4. every path from root to leaf node has the same number of black nodes
 type RBTree[K any, V any] struct {
@@ -131,7 +131,7 @@ func (rbt *RBTree[K, V]) Kvs() ([]K, []V) {
 // leftRotate left rotate around the node
 //
 //	     left rotate around the node x
-//		 (a / b / r can be subtree of nil)
+//		 (a / b / r can be a subtree of nil)
 //
 //		         |                      |
 //		         x                      y
@@ -161,10 +161,10 @@ func (rbt *RBTree[K, V]) leftRotate(x *rbNode[K, V]) {
 		// if node x's parent is nil, node x is root, change root to node y
 		rbt.root = y
 	} else if x == x.parent.left {
-		// if node x is left child, node y is left child
+		// if node x is the left child, node y is the left child
 		x.parent.left = y
 	} else {
-		// if node x is right child, node y is right child
+		// if node x is the right child, node y is the right child
 		x.parent.right = y
 	}
 
@@ -177,10 +177,10 @@ func (rbt *RBTree[K, V]) leftRotate(x *rbNode[K, V]) {
 // rightRotate right rotate around the node
 //
 //	     right rotate around the node x
-//		(a / b / r can be subtree of nil)
+//		(a / b / r can be a subtree of nil)
 //
-//		     	 |                      |
-//		     	 x                      y
+//		     	|                       |
+//		     	x                       y
 //		  	   / \                     / \
 //		  	  y   r        =>         a   x
 //		  	 / \                    	 / \
@@ -207,10 +207,10 @@ func (rbt *RBTree[K, V]) rightRotate(x *rbNode[K, V]) {
 		// if node x's parent is nil, node x is root, change root to node y
 		rbt.root = y
 	} else if x == x.parent.right {
-		// if node x is right child, node y is right child
+		// if node x is the right child, node y is the right child
 		x.parent.right = y
 	} else {
-		// if node x is left child, node y is left child
+		// if node x is the left child, node y is the left child
 		x.parent.left = y
 	}
 
@@ -266,8 +266,8 @@ func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 // fixupInsertion ensures the red-black tree properties are maintained after insertion.
 // It handles three cases based on the color of the node's uncle:
 // 1. Uncle is red
-// 2. Uncle is black and its parent is left child
-// 3. Uncle is black and its parent is right child
+// 2. Uncle is black and its parent is the left child
+// 3. Uncle is black and its parent is the right child
 func (rbt *RBTree[K, V]) fixupInsertion(node *rbNode[K, V]) {
 	for node != nil && node != rbt.root && node.parent.getColor() == red {
 		uncle := node.getUncle()
@@ -277,16 +277,17 @@ func (rbt *RBTree[K, V]) fixupInsertion(node *rbNode[K, V]) {
 		}
 
 		if node.parent == node.getGrandparent().left {
-			// case 2: uncle is black and its parent is left child
+			// case 2: uncle is black, and its parent is left child
 			node = rbt.fixupBlackUncleLeftChild(node)
 			continue
 		}
 
-		// case 3: uncle is black and its parent is right child
+		// case 3: uncle is black, and its parent is the right child
 		node = rbt.fixupBlackUncleRightChild(node)
 	}
 
-	// the new inserted node is root or the new inserted node's parent node is black,
+	// the new inserted node is root,
+	// or the new inserted node's parent node is black,
 	// no need to fixup
 	rbt.root.setColor(black)
 }
@@ -323,7 +324,7 @@ func (rbt *RBTree[K, V]) fixupRedUncle(node *rbNode[K, V], uncle *rbNode[K, V]) 
 //			   \							       		/
 //		       r(x)								     r(y)
 //
-// 1. if the focus on node x is right child of its parent, change focus on node to its parent node y.
+// 1. if the focus on node x is the right child of its parent, change the focus on the node to its parent node y.
 // 2. left rotate around the focus on node y.
 //
 //			   b(c)	   	                   b(c)                     r(b)
@@ -361,7 +362,7 @@ func (rbt *RBTree[K, V]) fixupBlackUncleLeftChild(node *rbNode[K, V]) *rbNode[K,
 //			          /                                             \
 //		             r(x)                                           r(y)
 //
-// 1. if the focus on node x is left child of its parent, change focus on node to its parent node y.
+// 1. if the focus on node x is the left child of its parent, change the focus on the node to its parent node y.
 // 2. right rotate around the focus on node y.
 //
 //			   b(c)	   	                   b(c)                         r(d)
@@ -397,9 +398,9 @@ func (rbt *RBTree[K, V]) fixupBlackUncleRightChild(node *rbNode[K, V]) *rbNode[K
 //		           RL  RR
 //		          /
 //		        RLL
-//	1. if the node has a right child,
+//	1. If the node has a right child,
 //	   	the successor is the leftmost node of the right subtree.
-//		from the right subtree of the deleted node(N),
+//		From the right subtree of the deleted node(N),
 //		traverse all the way to the leftmost node(RLL).(the node with the smallest key in the right subtree)
 //
 //	            P
@@ -407,11 +408,11 @@ func (rbt *RBTree[K, V]) fixupBlackUncleRightChild(node *rbNode[K, V]) *rbNode[K
 //		          N
 //		         /
 //		        L
-//	2. if the node has no right child,
+//	2. If the node has no right child,
 //		find the deleted node(N)'s parent node.
 //		if the deleted node is the left child of its parent, the successor is the parent node.
-//		otherwise, backtrack up the parent node until find the first ancestor node that is the left child of its parent.
-//		the ancestor node's parent is the successor.
+//		Otherwise, backtrack up the parent node until find the first ancestor node that is the left child of its parent.
+//		The ancestor node's parent is the successor.
 func (rbt *RBTree[K, V]) findSuccessor(node *rbNode[K, V]) *rbNode[K, V] {
 	if node == nil {
 		return nil
@@ -452,8 +453,8 @@ func (rbt *RBTree[K, V]) deleteNode(node *rbNode[K, V]) {
 		deletedNode.key = successor.key
 		deletedNode.val = successor.val
 
-		// replace the deleted node with the successor
-		// the successor will be deleted in the next step
+		// replace the deleted node with the successor,
+		// and the successor will be deleted in the next step
 		deletedNode = successor
 	}
 
@@ -627,7 +628,7 @@ func (rbt *RBTree[K, V]) midOrderTraversal(visitFn func(node *rbNode[K, V])) {
 	}
 }
 
-// rbNode is a node of red-black tree
+// rbNode is a node of a red-black tree
 // consider memory alignment, put color at the end of the struct
 type rbNode[K any, V any] struct {
 	parent *rbNode[K, V]
