@@ -1,4 +1,4 @@
-package syncext
+package xsync
 
 import (
 	"sync"

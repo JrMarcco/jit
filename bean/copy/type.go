@@ -2,7 +2,7 @@ package copier
 
 import (
 	"github.com/JrMarcco/easy-kit/bean/copy/converter"
-	"github.com/JrMarcco/easy-kit/bean/opt"
+	"github.com/JrMarcco/easy-kit/bean/option"
 	"github.com/JrMarcco/easy-kit/set"
 )
 
@@ -23,14 +23,14 @@ func newCopyConf() copyConf {
 	return copyConf{}
 }
 
-func (cc *copyConf) InIngore(fd string) bool {
+func (cc *copyConf) InIgnore(fd string) bool {
 	if cc.ignoreFds == nil {
 		return false
 	}
 	return cc.ignoreFds.Exist(fd)
 }
 
-func IgnoreFds(fds ...string) opt.Opt[copyConf] {
+func IgnoreFds(fds ...string) option.Opt[copyConf] {
 	return func(cc *copyConf) {
 		if len(fds) == 0 {
 			return
@@ -46,7 +46,7 @@ func IgnoreFds(fds ...string) opt.Opt[copyConf] {
 	}
 }
 
-func ConvertFd[S any, D any](fd string, converter converter.Converter[S, D]) opt.Opt[copyConf] {
+func ConvertFd[S any, D any](fd string, converter converter.Converter[S, D]) option.Opt[copyConf] {
 	return func(cc *copyConf) {
 		if fd == "" || converter == nil {
 			return

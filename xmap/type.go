@@ -1,4 +1,4 @@
-package mapext
+package xmap
 
 type Map[K any, V any] interface {
 	Size() int64

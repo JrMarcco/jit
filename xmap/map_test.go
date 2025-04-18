@@ -1,4 +1,4 @@
-package mapext
+package xmap
 
 import (
 	"testing"

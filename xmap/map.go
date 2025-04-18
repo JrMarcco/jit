@@ -1,4 +1,4 @@
-package mapext
+package xmap
 
 import "github.com/JrMarcco/easy-kit/internal/errs"
 

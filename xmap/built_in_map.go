@@ -1,4 +1,4 @@
-package mapext
+package xmap
 
 var _ Map[any, any] = (*builtInMap[any, any])(nil)
 

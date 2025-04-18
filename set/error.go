@@ -1,7 +1,7 @@
 package set
 
-import "github.com/JrMarcco/easy-kit/mapext"
+import "github.com/JrMarcco/easy-kit/xmap"
 
 var (
-	ErrNilComparator = mapext.ErrNilComparator
+	ErrNilComparator = xmap.ErrNilComparator
 )

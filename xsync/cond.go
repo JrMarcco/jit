@@ -1,4 +1,4 @@
-package syncext
+package xsync
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 
 // Cond is a condition variable that can be used to wait for a condition to be met.
 //
-// When change condition, you should use the `Locker` to lock the condition.
+// When changing the condition, you should use the `Locker` to lock the condition.
 //
-// In Go memory model, Cond guantees the calling of Broadcast and Signal methods.
+// In the Go memory model, Cond guarantees the calling of Broadcast and Signal methods.
 //
 // In most simple cases, is better to use channels instead of Cond.
 // Call broadcast method on a closed channel, Signal should give a channel send message.
@@ -21,13 +21,6 @@ type Cond struct {
 	once       sync.Once      // use to init notifyList
 	Locker     sync.Locker    // Locker is used to Lock when observing or changing condition.
 	noCopy     noCopy
-}
-
-// NewCond creates a new Cond instance with the provided locker.
-func NewCond(locker sync.Locker) *Cond {
-	return &Cond{
-		Locker: locker,
-	}
 }
 
 // Wait waits for the condition to be met, unlocking the locker while waiting.
@@ -62,7 +55,7 @@ func (c *Cond) Broadcast() {
 
 // checkCopy checks if the Cond instance has been copied and panics if it has.
 func (c *Cond) checkCopy() {
-	// checking the pointer saved by checker is equal to the current pointer.(not init when create Cond, so it possible to be not equal)
+	// checking the pointer saved by a checker is equal to the current pointer.(not init when create Cond, so it possible to be not equal)
 	if c.checker != unsafe.Pointer(c) &&
 		// when first time to init, c.checker is zero value.
 		// so use CompareAndSwapPointer to set the pointer.
@@ -80,18 +73,17 @@ func (c *Cond) checkFirstUse() {
 	})
 }
 
+// NewCond creates a new Cond instance with the provided locker.
+func NewCond(locker sync.Locker) *Cond {
+	return &Cond{
+		Locker: locker,
+	}
+}
+
 // notifyList manages a list of waiting notifications using a mutex and a chanList.
 type notifyList struct {
 	mutex sync.Mutex
 	list  *chanList
-}
-
-// newNotifyList creates a new notifyList instance.
-func newNotifyList() *notifyList {
-	return &notifyList{
-		mutex: sync.Mutex{},
-		list:  newChanList(),
-	}
 }
 
 // add adds a new channel node to the notifyList.
@@ -123,7 +115,8 @@ func (nl *notifyList) wait(ctx context.Context, node *chanNode) error {
 				nl.notifyNext()
 			}
 		default:
-			// if can not receive the signal from the channel, means the channel is never used,
+			// cannot receive the signal from the channel,
+			// means the channel is never used,
 			// waiting object can be removed from the list.
 			nl.list.remove(node)
 		}
@@ -168,6 +161,14 @@ func (nl *notifyList) notifyAll() {
 	}
 }
 
+// newNotifyList creates a new notifyList instance.
+func newNotifyList() *notifyList {
+	return &notifyList{
+		mutex: sync.Mutex{},
+		list:  newChanList(),
+	}
+}
+
 // chanNode represents a node in the chanList, containing a channel and pointers to previous and next nodes.
 type chanNode struct {
 	prev *chanNode
@@ -180,25 +181,6 @@ type chanList struct {
 	sentinel *chanNode
 	size     int
 	pool     *sync.Pool
-}
-
-// newChanList creates a new chanList instance.
-func newChanList() *chanList {
-	sentinel := &chanNode{}
-	sentinel.prev = sentinel
-	sentinel.next = sentinel
-
-	return &chanList{
-		sentinel: sentinel,
-		size:     0,
-		pool: &sync.Pool{
-			New: func() any {
-				return &chanNode{
-					Val: make(chan struct{}, 1),
-				}
-			},
-		},
-	}
 }
 
 // len returns the number of channels in the chanList.
@@ -238,6 +220,25 @@ func (cl *chanList) remove(node *chanNode) {
 // free returns a channel node to the pool for reuse.
 func (cl *chanList) free(node *chanNode) {
 	cl.pool.Put(node)
+}
+
+// newChanList creates a new chanList instance.
+func newChanList() *chanList {
+	sentinel := &chanNode{}
+	sentinel.prev = sentinel
+	sentinel.next = sentinel
+
+	return &chanList{
+		sentinel: sentinel,
+		size:     0,
+		pool: &sync.Pool{
+			New: func() any {
+				return &chanNode{
+					Val: make(chan struct{}, 1),
+				}
+			},
+		},
+	}
 }
 
 // noCopy is a struct used to prevent copying of Cond instances.

@@ -1,9 +1,9 @@
-package mapext
+package xmap
 
 import (
 	"errors"
-
 	easykit "github.com/JrMarcco/easy-kit"
+
 	"github.com/JrMarcco/easy-kit/internal/errs"
 	"github.com/JrMarcco/easy-kit/internal/tree"
 )
@@ -13,27 +13,6 @@ var _ Map[any, any] = (*TreeMap[any, any])(nil)
 // TreeMap is a map implemented using a red-black tree.
 type TreeMap[K any, V any] struct {
 	tree *tree.RBTree[K, V]
-}
-
-func NewTreeMap[K any, V any](cmp easykit.Comparator[K]) (*TreeMap[K, V], error) {
-	if cmp == nil {
-		return nil, ErrNilComparator
-	}
-
-	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil
-}
-
-func NewTreeMapWithMap[K comparable, V any](cmp easykit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
-	treeMap, err := NewTreeMap[K, V](cmp)
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range m {
-		treeMap.Put(k, v)
-	}
-
-	return treeMap, nil
 }
 
 func (tm *TreeMap[K, V]) Put(k K, v V) error {
@@ -69,4 +48,27 @@ func (tm *TreeMap[K, V]) Vals() []V {
 
 func (tm *TreeMap[K, V]) KeyVals() ([]K, []V) {
 	return tm.tree.Kvs()
+}
+
+func NewTreeMap[K any, V any](cmp easykit.Comparator[K]) (*TreeMap[K, V], error) {
+	if cmp == nil {
+		return nil, ErrNilComparator
+	}
+
+	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil
+}
+
+func NewTreeMapWithMap[K comparable, V any](cmp easykit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
+	treeMap, err := NewTreeMap[K, V](cmp)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range m {
+		if err := treeMap.Put(k, v); err != nil {
+			return nil, err
+		}
+	}
+
+	return treeMap, nil
 }

@@ -1,4 +1,4 @@
-package opt
+package option
 
 // Opt is generalized design for option pattern.
 type Opt[T any] func(*T)
