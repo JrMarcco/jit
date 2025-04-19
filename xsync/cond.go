@@ -7,243 +7,266 @@ import (
 	"unsafe"
 )
 
-// Cond is a condition variable that can be used to wait for a condition to be met.
-//
-// When changing the condition, you should use the `Locker` to lock the condition.
-//
-// In the Go memory model, Cond guarantees the calling of Broadcast and Signal methods.
-//
-// In most simple cases, is better to use channels instead of Cond.
-// Call broadcast method on a closed channel, Signal should give a channel send message.
 type Cond struct {
+	L sync.Locker
+
 	notifyList *notifyList
-	checker    unsafe.Pointer // pointer to itself to check it's being used by copy.
-	once       sync.Once      // use to init notifyList
-	Locker     sync.Locker    // Locker is used to Lock when observing or changing condition.
-	noCopy     noCopy
+	checker    unsafe.Pointer
+	once       sync.Once
+
+	noCopy noCopy
 }
 
-// Wait waits for the condition to be met, unlocking the locker while waiting.
-// It locks the locker again after the wait is over.
+// Wait like Go standard library's sync.Cond.Wait.
+// have to lock the lock before calling Wait.
+//
+// Wait will lock the lock and add the current goroutine to the wait list.
+//
+// When Wait is invoked, the current goroutine will release the lock first and go to the wait list.
+//
+//	( waiting for other goroutines to invoke Signal or Broadcast ).
+//
+// After being notified, Wait will lock the lock and return.
+// The point of this is that can hold the lock again after the Wait method returns.
+// It is safe to check conditions and process data.
 func (c *Cond) Wait(ctx context.Context) error {
 	c.checkCopy()
-	c.checkFirstUse()
+	c.initNotifyListOnce()
 
-	node := c.notifyList.add()
+	// put the current goroutine to the wait list.
+	n := c.notifyList.add()
 
-	c.Locker.Unlock()
-	defer c.Locker.Lock()
+	// before waiting, must lock the lock.
+	c.L.Unlock()
+	defer c.L.Lock()
 
-	return c.notifyList.wait(ctx, node)
+	return c.notifyList.wait(ctx, n)
 }
 
-// Signal notifies one waiting goroutine that the condition has been met.
+// checkCopy checks whether the Cond is copied.
+func (c *Cond) checkCopy() {
+	// check the checker pointer is to the current address.
+	if c.checker != unsafe.Pointer(c) &&
+		// ensure the checker pointer is not changed ( checker pointer first assigned ).
+		// the checker pointer is nil when first created.
+		!atomic.CompareAndSwapPointer(&c.checker, nil, unsafe.Pointer(c)) &&
+		// check the checker pointer again.
+		// the checker pointer has to the current address.
+		c.checker != unsafe.Pointer(c) {
+		panic("xsync: Cond is copied")
+	}
+}
+
+// initNotifyListOnce initializes the notifyList.
+func (c *Cond) initNotifyListOnce() {
+	c.once.Do(func() {
+		if c.notifyList == nil {
+			c.notifyList = newNotifyList()
+		}
+	})
+}
+
+// Signal notify one goroutine that wait in Cond.
 func (c *Cond) Signal() {
 	c.checkCopy()
-	c.checkFirstUse()
+	c.initNotifyListOnce()
 
 	c.notifyList.notifyOne()
 }
 
-// Broadcast notifies all waiting goroutines that the condition has been met.
+// Broadcast notifies all goroutines that wait in Cond.
 func (c *Cond) Broadcast() {
 	c.checkCopy()
-	c.checkFirstUse()
+	c.initNotifyListOnce()
 
 	c.notifyList.notifyAll()
 }
 
-// checkCopy checks if the Cond instance has been copied and panics if it has.
-func (c *Cond) checkCopy() {
-	// checking the pointer saved by a checker is equal to the current pointer.(not init when create Cond, so it possible to be not equal)
-	if c.checker != unsafe.Pointer(c) &&
-		// when first time to init, c.checker is zero value.
-		// so use CompareAndSwapPointer to set the pointer.
-		!atomic.CompareAndSwapPointer(&c.checker, nil, unsafe.Pointer(c)) &&
-		// checking the pointer again
-		c.checker != unsafe.Pointer(c) {
-		panic("[sync] Cond is copied")
-	}
-}
-
-// checkFirstUse initializes the notifyList if it hasn't been initialized yet.
-func (c *Cond) checkFirstUse() {
-	c.once.Do(func() {
-		c.notifyList = newNotifyList()
-	})
-}
-
-// NewCond creates a new Cond instance with the provided locker.
 func NewCond(locker sync.Locker) *Cond {
 	return &Cond{
-		Locker: locker,
+		L: locker,
 	}
 }
 
-// notifyList manages a list of waiting notifications using a mutex and a chanList.
 type notifyList struct {
-	mutex sync.Mutex
-	list  *chanList
+	lock sync.Mutex
+	list *chanList
 }
 
-// add adds a new channel node to the notifyList.
-func (nl *notifyList) add() *chanNode {
-	nl.mutex.Lock()
-	defer nl.mutex.Unlock()
+// add adds a new channel to the list.
+func (l *notifyList) add() *node {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 
-	node := nl.list.alloc()
-	nl.list.pushBack(node)
-
-	return node
+	n := l.list.allocate()
+	l.list.pushBack(n)
+	return n
 }
 
-// wait waits for a notification or context cancellation.
-func (nl *notifyList) wait(ctx context.Context, node *chanNode) error {
-	ch := node.Val
-
-	defer nl.list.free(node)
+// wait waits for a channel to be notified.
+func (l *notifyList) wait(ctx context.Context, n *node) error {
+	ch := n.Value
+	// put the node back in the pool.
+	// it's useful to reduce GC and memory allocation.
+	defer l.list.free(n)
 
 	select {
 	case <-ctx.Done():
-		nl.mutex.Lock()
-		defer nl.mutex.Unlock()
+		// timeout or canceled.
+		l.lock.Lock()
+		defer l.lock.Unlock()
 
 		select {
-		// double check.
+		// double-check: notified before locked.
+		// if notified, notify next.
+		// why notify the next one?
+		//		if the notified channel is not consumed by the current goroutine,
+		//		then the other waiters will never receive the signal.
+		//		then the queue will be blocked.
+		//		you've been received a signal here means that you should be notified.
+		//		but you missed it ( context canceled or timeout ).
+		//		so need to notify the next one.
 		case <-ch:
-			if nl.list.len() != 0 {
-				nl.notifyNext()
+			if l.list.len() != 0 {
+				l.notifyNext()
 			}
 		default:
-			// cannot receive the signal from the channel,
-			// means the channel is never used,
-			// waiting object can be removed from the list.
-			nl.list.remove(node)
+			// did not receive a signal until context canceled or timeout.
+			// means the invoker given up waiting for the signal.
+			// this node will never be notified anymore.
+			l.list.remove(n)
 		}
 		return ctx.Err()
-
 	case <-ch:
-		// receive the signal from the channel means a normal wake-up call
+		// notified.
 		return nil
 	}
-
 }
 
-// notifyNext notifies the next node in the notifyList.
-func (nl *notifyList) notifyNext() {
-	front := nl.list.front()
-
-	ch := front.Val
-	nl.list.remove(front)
-
-	ch <- struct{}{}
-}
-
-// notifyOne notifies one waiting node in the notifyList.
-func (nl *notifyList) notifyOne() {
-	nl.mutex.Lock()
-	defer nl.mutex.Unlock()
-
-	if nl.list.len() == 0 {
+// notifyOne notifies one channel in the list.
+// if the list is empty, notifyOne does nothing.
+func (l *notifyList) notifyOne() {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	if l.list.len() == 0 {
 		return
 	}
 
-	nl.notifyNext()
+	l.notifyNext()
 }
 
-// notifyAll notifies all waiting nodes in the notifyList.
-func (nl *notifyList) notifyAll() {
-	nl.mutex.Lock()
-	defer nl.mutex.Unlock()
+// notifyNext notifies the next channel in the list.
+func (l *notifyList) notifyNext() {
+	front := l.list.front()
+	ch := front.Value
+	l.list.remove(front)
 
-	for nl.list.len() != 0 {
-		nl.notifyNext()
+	// send a signal to the channel.
+	ch <- struct{}{}
+}
+
+// notifyAll notifies all channels in the list.
+// if the list is empty, notifyAll does nothing.
+func (l *notifyList) notifyAll() {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	for l.list.len() != 0 {
+		l.notifyNext()
 	}
 }
 
-// newNotifyList creates a new notifyList instance.
 func newNotifyList() *notifyList {
 	return &notifyList{
-		mutex: sync.Mutex{},
-		list:  newChanList(),
+		lock: sync.Mutex{},
+		list: newChanList(),
 	}
 }
 
-// chanNode represents a node in the chanList, containing a channel and pointers to previous and next nodes.
-type chanNode struct {
-	prev *chanNode
-	next *chanNode
-	Val  chan struct{}
+// node is used to store the channels.
+// is a linked list element.
+type node struct {
+	prev  *node
+	next  *node
+	Value chan struct{}
 }
 
-// chanList is a doubly linked list used to store channels.
+// chanList is a double-linked list for saving the channels.
+// use pool to reuse list elements.
 type chanList struct {
-	sentinel *chanNode
-	size     int
+	// in the double-linked list,
+	// sentinel is in the middle of the list.
+	// the list front is sentinel.next,
+	// and the list back is sentinel.prev.
+	// [sentinel] <-> node1 <-> node2 <-> [sentinel]
+	//            		↑         ↑
+	//          	front        tail
+	// when sentinel.prev and sentinel.next are sentinel itself means the list is empty.
+	sentinel *node
+	size     int64
 	pool     *sync.Pool
 }
 
-// len returns the number of channels in the chanList.
-func (cl *chanList) len() int {
-	return cl.size
-}
-
-// front returns the first channel node in the chanList.
-func (cl *chanList) front() *chanNode {
-	return cl.sentinel.next
-}
-
-// alloc allocates a new channel node from the pool.
-func (cl *chanList) alloc() *chanNode {
-	return cl.pool.Get().(*chanNode)
-}
-
-// pushBack adds a new channel node to the end of the chanList.
-func (cl *chanList) pushBack(node *chanNode) {
-	node.next = cl.sentinel
-	node.prev = cl.sentinel.prev
-
-	cl.sentinel.prev.next = node
-	cl.sentinel.prev = node
-	cl.size++
-}
-
-// remove removes a channel node from the chanList.
-func (cl *chanList) remove(node *chanNode) {
-	node.prev.next = node.next
-	node.next.prev = node.prev
-	node.prev = nil
-	node.next = nil
-	cl.size--
-}
-
-// free returns a channel node to the pool for reuse.
-func (cl *chanList) free(node *chanNode) {
-	cl.pool.Put(node)
-}
-
-// newChanList creates a new chanList instance.
 func newChanList() *chanList {
-	sentinel := &chanNode{}
-	sentinel.prev = sentinel
+	sentinel := &node{}
+	// list is empty, sentinel.prev and sentinel.next are sentinel itself.
 	sentinel.next = sentinel
+	sentinel.prev = sentinel
 
 	return &chanList{
 		sentinel: sentinel,
 		size:     0,
 		pool: &sync.Pool{
 			New: func() any {
-				return &chanNode{
-					Val: make(chan struct{}, 1),
+				return &node{
+					Value: make(chan struct{}, 1),
 				}
 			},
 		},
 	}
 }
 
-// noCopy is a struct used to prevent copying of Cond instances.
+// allocate returns a node from the pool.
+// if the pool is empty, a new node is created.
+func (l *chanList) allocate() *node {
+	return l.pool.Get().(*node)
+}
+
+// pushBack adds a new node to the back of the list.
+func (l *chanList) pushBack(n *node) {
+	n.next = l.sentinel
+	n.prev = l.sentinel.prev
+	n.prev.next = n
+	n.next.prev = n
+	l.size++
+}
+
+// remove removes a node from the list.
+// n must not be nil.
+func (l *chanList) remove(n *node) {
+	n.prev.next = n.next
+	n.next.prev = n.prev
+	n.prev = nil
+	n.next = nil
+	l.size--
+}
+
+// free put the node back in the pool.
+func (l *chanList) free(n *node) {
+	l.pool.Put(n)
+}
+
+// front returns the first node of the list.
+// if the list is empty, nil is returned.
+func (l *chanList) front() *node {
+	return l.sentinel.next
+}
+
+func (l *chanList) len() int64 {
+	return l.size
+}
+
 type noCopy struct{}
 
-func (*noCopy) Lock() {}
-
+func (*noCopy) Lock()   {}
 func (*noCopy) Unlock() {}

@@ -2,22 +2,52 @@ package xsync
 
 import (
 	"context"
+	"math/rand"
 	"sync"
 	"testing"
+	"time"
 )
+
+func TestCond(t *testing.T) {
+	c := NewCond(&sync.Mutex{})
+
+	ready := 0
+
+	for i := 0; i < 10; i++ {
+		idx := i
+		go func(i int) {
+			time.Sleep(time.Duration(rand.Int63n(10)) * time.Second)
+
+			c.L.Lock()
+			ready++
+			c.L.Unlock()
+
+			t.Logf("ready: %d", i)
+			c.Broadcast()
+		}(idx)
+	}
+
+	c.L.Lock()
+	for ready != 10 {
+		_ = c.Wait(context.Background())
+		t.Logf("waiter wake up once")
+	}
+	c.L.Unlock()
+
+	t.Logf("all waiter wake up")
+}
 
 func benchmarkCond(b *testing.B, waiterCnt int) {
 	c := NewCond(&sync.Mutex{})
 	done := make(chan bool)
 	id := 0
 
-	for range waiterCnt + 1 {
+	for r := 0; r < waiterCnt+1; r++ {
 		go func() {
 			for i := 0; i < b.N; i++ {
-				c.Locker.Lock()
-
+				c.L.Lock()
 				if id == -1 {
-					c.Locker.Unlock()
+					c.L.Unlock()
 					break
 				}
 
@@ -30,21 +60,21 @@ func benchmarkCond(b *testing.B, waiterCnt int) {
 					_ = c.Wait(context.Background())
 				}
 
-				c.Locker.Unlock()
+				c.L.Unlock()
 			}
 
-			c.Locker.Lock()
+			c.L.Lock()
 			id = -1
 			c.Broadcast()
-			c.Locker.Unlock()
+			c.L.Unlock()
 
 			done <- true
 		}()
 	}
 
-	for range done {
+	for r := 0; r < waiterCnt+1; r++ {
+		<-done
 	}
-
 }
 
 func BenchmarkCond_1(b *testing.B) {
