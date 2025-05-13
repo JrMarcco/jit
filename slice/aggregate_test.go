@@ -158,15 +158,15 @@ func TestSum(t *testing.T) {
 
 func ExampleMax() {
 	slice := []int{1, 2, 3, 4, 5}
-	max, _ := Max(slice)
-	fmt.Println(max)
+	m, _ := Max(slice)
+	fmt.Println(m)
 	// Output: 5
 }
 
 func ExampleMin() {
 	slice := []int{1, 2, 3, 4, 5}
-	min, _ := Min(slice)
-	fmt.Println(min)
+	m, _ := Min(slice)
+	fmt.Println(m)
 	// Output: 1
 }
 
