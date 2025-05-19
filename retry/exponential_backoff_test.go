@@ -83,7 +83,7 @@ func TestExponentialBackoffRetry_Next(t *testing.T) {
 	}
 }
 
-func TestExponentialBackoffStrategy_NextWithRetriedTimes(t *testing.T) {
+func TestExponentialBackoffStrategy_NextWithRetried(t *testing.T) {
 	t.Parallel()
 
 	tcs := []struct {
@@ -150,7 +150,7 @@ func TestExponentialBackoffStrategy_NextWithRetriedTimes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			dur, ok := tc.strategy.NextWithRetriedTimes(tc.retriedTimes)
+			dur, ok := tc.strategy.NextWithRetried(tc.retriedTimes)
 			assert.Equal(t, tc.wantRes, ok)
 			if ok {
 				assert.Equal(t, tc.wantDur, dur)

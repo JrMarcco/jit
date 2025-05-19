@@ -25,7 +25,7 @@ func (e *ExponentialBackoffStrategy) Next() (time.Duration, bool) {
 	return e.nextRetry(retriedTimes)
 }
 
-func (e *ExponentialBackoffStrategy) NextWithRetriedTimes(retriedTimes int32) (time.Duration, bool) {
+func (e *ExponentialBackoffStrategy) NextWithRetried(retriedTimes int32) (time.Duration, bool) {
 	return e.nextRetry(retriedTimes)
 }
 

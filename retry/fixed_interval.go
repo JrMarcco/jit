@@ -20,7 +20,7 @@ func (f *FixedIntervalStrategy) Next() (time.Duration, bool) {
 	return f.nextRetry(retriedTimes)
 }
 
-func (f *FixedIntervalStrategy) NextWithRetriedTimes(retriedTimes int32) (time.Duration, bool) {
+func (f *FixedIntervalStrategy) NextWithRetried(retriedTimes int32) (time.Duration, bool) {
 	return f.nextRetry(retriedTimes)
 }
 

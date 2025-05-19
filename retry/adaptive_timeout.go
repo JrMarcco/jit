@@ -26,6 +26,22 @@ func (a *AdaptiveTimeoutStrategy) Next() (time.Duration, bool) {
 	return a.strategy.Next()
 }
 
+func (a *AdaptiveTimeoutStrategy) NextWithRetried(retriedTimes int32) (time.Duration, bool) {
+	failureCnt := a.getFailureCnt()
+	if failureCnt >= a.threshold {
+		return 0, false
+	}
+
+	if s, ok := a.strategy.(interface {
+		NextWithRetried(int32) (time.Duration, bool)
+	}); ok {
+		return s.NextWithRetried(retriedTimes)
+	}
+
+	// fallback: just call Next()
+	return a.strategy.Next()
+}
+
 func (a *AdaptiveTimeoutStrategy) Report(err error) Strategy {
 	if err == nil {
 		a.markAsSuccess()
