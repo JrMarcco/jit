@@ -2,36 +2,18 @@ package xmap
 
 import (
 	"errors"
+
 	easykit "github.com/JrMarcco/easy-kit"
 
 	"github.com/JrMarcco/easy-kit/internal/errs"
 	"github.com/JrMarcco/easy-kit/internal/tree"
 )
 
-var _ Map[any, any] = (*TreeMap[any, any])(nil)
+var _ imap[any, any] = (*TreeMap[any, any])(nil)
 
 // TreeMap is a map implemented using a red-black tree.
 type TreeMap[K any, V any] struct {
 	tree *tree.RBTree[K, V]
-}
-
-func (tm *TreeMap[K, V]) Put(k K, v V) error {
-	err := tm.tree.Put(k, v)
-	if err != nil && errors.Is(err, errs.ErrSameRBNode) {
-		// if the key already exists, update the value
-		return tm.tree.Set(k, v)
-	}
-	return err
-}
-
-func (tm *TreeMap[K, V]) Del(k K) (V, bool) {
-	v, err := tm.tree.Del(k)
-	return v, err == nil
-}
-
-func (tm *TreeMap[K, V]) Get(k K) (V, bool) {
-	v, err := tm.tree.Get(k)
-	return v, err == nil
 }
 
 func (tm *TreeMap[K, V]) Size() int64 {
@@ -46,6 +28,29 @@ func (tm *TreeMap[K, V]) Vals() []V {
 	return tm.tree.Vals()
 }
 
+func (tm *TreeMap[K, V]) Put(key K, val V) error {
+	err := tm.tree.Put(key, val)
+	if err != nil && errors.Is(err, errs.ErrSameRBNode) {
+		// if the key already exists, update the value
+		return tm.tree.Set(key, val)
+	}
+	return err
+}
+
+func (tm *TreeMap[K, V]) Del(key K) (V, bool) {
+	v, err := tm.tree.Del(key)
+	return v, err == nil
+}
+
+func (tm *TreeMap[K, V]) Get(key K) (V, bool) {
+	v, err := tm.tree.Get(key)
+	return v, err == nil
+}
+
+func (tm *TreeMap[K, V]) Iter(visitFunc func(key K, val V) bool) {
+	tm.tree.Iter(visitFunc)
+}
+
 func (tm *TreeMap[K, V]) KeyVals() ([]K, []V) {
 	return tm.tree.Kvs()
 }
@@ -54,7 +59,6 @@ func NewTreeMap[K any, V any](cmp easykit.Comparator[K]) (*TreeMap[K, V], error)
 	if cmp == nil {
 		return nil, ErrNilComparator
 	}
-
 	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil
 }
 

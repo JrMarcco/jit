@@ -120,6 +120,37 @@ func (rbt *RBTree[K, V]) Kvs() ([]K, []V) {
 	return keys, vals
 }
 
+// Iter to traversal all the tree node.
+//
+// If fn returns false, terminate traversal.
+func (rbt *RBTree[K, V]) Iter(visitFunc func(key K, val V) bool) {
+	rbt.inOrderTraversal(func(node *rbNode[K, V]) bool {
+		return visitFunc(node.key, node.val)
+	})
+}
+
+func (rbt *RBTree[K, V]) inOrderTraversal(visitFunc func(node *rbNode[K, V]) bool) {
+	stack := make([]*rbNode[K, V], 0)
+	currNode := rbt.root
+
+	for currNode != nil || len(stack) > 0 {
+		for currNode != nil {
+			// stack push
+			stack = append(stack, currNode)
+			currNode = currNode.left
+		}
+
+		// stack pop
+		currNode = stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if !visitFunc(currNode) {
+			break
+		}
+		currNode = currNode.right
+	}
+}
+
 // leftRotate left rotate around the node
 //
 //	     left rotate around the node x

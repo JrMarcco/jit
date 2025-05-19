@@ -1,8 +1,9 @@
 package xmap
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuiltInMap_Put(t *testing.T) {
