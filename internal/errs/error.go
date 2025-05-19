@@ -3,6 +3,7 @@ package errs
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 var (
@@ -18,14 +19,25 @@ func ErrIndexOutOfBounds(length int, index int) error {
 	return fmt.Errorf("[easy-kit] index %d out of bounds for length %d", index, length)
 }
 
-func ErrInvalidType(want string, got any) error {
-	return fmt.Errorf("[easy-kit] invalid type: want %s, got %#v", want, got)
-}
-
 func ErrEmptySlice() error {
 	return fmt.Errorf("[easy-kit] slice is empty")
 }
 
 func ErrInvalidKeyValLen() error {
 	return fmt.Errorf("[easy-kit] keys and vals have different lengths")
+}
+
+func ErrInvalidInterval(interval time.Duration) error {
+	return fmt.Errorf("[easy-kit] invalid interval: %v, expected interval value should greater than 0", interval)
+}
+
+func ErrInvalidMaxInterval(maxInterval time.Duration) error {
+	return fmt.Errorf(
+		"[easy-kit] invalid max interval: %v, expected max interval value should greater than init interval",
+		maxInterval,
+	)
+}
+
+func ErrRetryTimeExhausted(latestErr error) error {
+	return fmt.Errorf("[easy-kit] retry time exhausted, the latest error: %w", latestErr)
 }
