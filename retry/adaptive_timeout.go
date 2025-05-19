@@ -31,15 +31,7 @@ func (a *AdaptiveTimeoutStrategy) NextWithRetried(retriedTimes int32) (time.Dura
 	if failureCnt >= a.threshold {
 		return 0, false
 	}
-
-	if s, ok := a.strategy.(interface {
-		NextWithRetried(int32) (time.Duration, bool)
-	}); ok {
-		return s.NextWithRetried(retriedTimes)
-	}
-
-	// fallback: just call Next()
-	return a.strategy.Next()
+	return a.strategy.NextWithRetried(retriedTimes)
 }
 
 func (a *AdaptiveTimeoutStrategy) Report(err error) Strategy {
