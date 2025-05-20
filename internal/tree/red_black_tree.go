@@ -33,7 +33,7 @@ func (rbt *RBTree[K, V]) Size() int64 {
 }
 
 func (rbt *RBTree[K, V]) Put(key K, val V) error {
-	if err := rbt.insertNode(newNode(key, val)); err != nil {
+	if err := rbt.insertNode(newRbNode(key, val)); err != nil {
 		return err
 	}
 
@@ -248,7 +248,7 @@ func (rbt *RBTree[K, V]) rightRotate(x *rbNode[K, V]) {
 func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 	if rbt.root == nil {
 		// if the tree is empty, the inserted node is the root
-		rbt.root = newNode(node.key, node.val)
+		rbt.root = newRbNode(node.key, node.val)
 		rbt.root.setColor(black)
 		return nil
 	}
@@ -273,7 +273,7 @@ func (rbt *RBTree[K, V]) insertNode(node *rbNode[K, V]) error {
 	}
 
 	// the first focus on node is the inserted node
-	insertedNode := newNode(node.key, node.val)
+	insertedNode := newRbNode(node.key, node.val)
 	insertedNode.parent = parent
 
 	if cmp < 0 {
@@ -712,9 +712,9 @@ func (rbn *rbNode[K, V]) getUncle() *rbNode[K, V] {
 	return rbn.parent.getSibling()
 }
 
-// newNode create a new node
+// newRbNode create a new node
 // the new node is red before insert fixup
-func newNode[K any, V any](key K, val V) *rbNode[K, V] {
+func newRbNode[K any, V any](key K, val V) *rbNode[K, V] {
 	return &rbNode[K, V]{
 		key:    key,
 		val:    val,

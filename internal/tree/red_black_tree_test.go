@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func cmp() easykit.Comparator[int] {
+var testCmp = func() easykit.Comparator[int] {
 	return func(a, b int) int { return a - b }
-}
+}()
 
 func validRBTree[K any, V any](root *rbNode[K, V]) bool {
 	if root.getColor() != black {
@@ -65,7 +65,7 @@ func TestNewRBTree(t *testing.T) {
 	}{
 		{
 			name:    "int cmp",
-			cmp:     cmp(),
+			cmp:     testCmp,
 			wantRes: true,
 		}, {
 			name:    "nil cmp",
@@ -82,7 +82,7 @@ func TestNewRBTree(t *testing.T) {
 	}
 }
 
-func TestRBTree_ValidRBTree(t *testing.T) {
+func TestRBTree_ValidateRBTree(t *testing.T) {
 	tcs := []struct {
 		name    string
 		node    *rbNode[int, int]
@@ -207,7 +207,7 @@ func TestRBTree_Insert(t *testing.T) {
 		putNodes []*rbNode[int, int]
 		wantRes  bool
 		wantErr  error
-		wantSize int
+		wantSize int64
 		wantKeys []int
 		wantVals []int
 	}{
@@ -260,7 +260,7 @@ func TestRBTree_Insert(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			rbt := NewRBTree[int, int](cmp())
+			rbt := NewRBTree[int, int](testCmp)
 			for _, node := range tc.putNodes {
 				err := rbt.Put(node.key, node.val)
 				if err != nil {
@@ -286,7 +286,7 @@ func TestRBTree_Del(t *testing.T) {
 		delNodes []*rbNode[int, int]
 		wantRes  bool
 		wantErr  error
-		wantSize int
+		wantSize int64
 		wantVals []int
 	}{
 		{
@@ -339,7 +339,7 @@ func TestRBTree_Del(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			rbt := NewRBTree[int, int](cmp())
+			rbt := NewRBTree[int, int](testCmp)
 			for _, node := range tc.putNodes {
 				_ = rbt.Put(node.key, node.val)
 			}
@@ -392,7 +392,7 @@ func TestRBTree_Set(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			rbt := NewRBTree[int, int](cmp())
+			rbt := NewRBTree[int, int](testCmp)
 			for _, node := range tc.putNodes {
 				_ = rbt.Put(node.key, node.val)
 			}
@@ -436,7 +436,7 @@ func TestRBTree_Get(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			rbt := NewRBTree[int, int](cmp())
+			rbt := NewRBTree[int, int](testCmp)
 			for _, node := range tc.putNodes {
 				_ = rbt.Put(node.key, node.val)
 			}
