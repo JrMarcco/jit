@@ -27,9 +27,9 @@ func shrink(cap int, length int) (int, bool) {
 }
 
 func Shrink[T any](slice []T) []T {
-	cap, length := cap(slice), len(slice)
+	c, length := cap(slice), len(slice)
 
-	newCap, shrunken := shrink(cap, length)
+	newCap, shrunken := shrink(c, length)
 	if !shrunken {
 		return slice
 	}

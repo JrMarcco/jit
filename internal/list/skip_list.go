@@ -199,7 +199,7 @@ func NewSkipList[T any](cmp easykit.Comparator[T]) *SkipList[T] {
 	}
 }
 
-func SkipListFromSlice[T any](cmp easykit.Comparator[T], slice []T) *SkipList[T] {
+func SkipListOf[T any](cmp easykit.Comparator[T], slice []T) *SkipList[T] {
 	sl := NewSkipList[T](cmp)
 	for _, v := range slice {
 		sl.Insert(v)

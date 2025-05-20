@@ -25,7 +25,7 @@ func TestNewSkipList(t *testing.T) {
 func TestSkipListFromSlice(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
-	sl := SkipListFromSlice[int](testCmp, slice)
+	sl := SkipListOf(testCmp, slice)
 
 	assert.Equal(t, sl.size, 10)
 	assert.Equal(t, sl.ToSlice(), slice)
@@ -47,13 +47,13 @@ func TestSkipList_Insert(t *testing.T) {
 			wantSize:  1,
 		}, {
 			name:      "insert exists value",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       2,
 			wantSlice: []int{1, 2, 2, 3},
 			wantSize:  4,
 		}, {
 			name: "insert to head",
-			list: SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list: SkipListOf(testCmp, []int{1, 2, 3}),
 			val:  0,
 			wantSlice: []int{
 				0, 1, 2, 3,
@@ -61,7 +61,7 @@ func TestSkipList_Insert(t *testing.T) {
 			wantSize: 4,
 		}, {
 			name:      "insert to tail",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       4,
 			wantSlice: []int{1, 2, 3, 4},
 			wantSize:  4,
@@ -89,28 +89,28 @@ func TestSkipList_Delete(t *testing.T) {
 	}{
 		{
 			name:      "basic",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       2,
 			wantSlice: []int{1, 3},
 			wantSize:  2,
 			wantRes:   true,
 		}, {
 			name:      "delete non-exist value",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       4,
 			wantSlice: []int{1, 2, 3},
 			wantSize:  3,
 			wantRes:   false,
 		}, {
 			name:      "delete head",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       1,
 			wantSlice: []int{2, 3},
 			wantSize:  2,
 			wantRes:   true,
 		}, {
 			name:      "delete tail",
-			list:      SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:      SkipListOf(testCmp, []int{1, 2, 3}),
 			val:       3,
 			wantSlice: []int{1, 2},
 			wantSize:  2,
@@ -145,12 +145,12 @@ func TestSkipList_Exist(t *testing.T) {
 	}{
 		{
 			name:    "basic",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			target:  2,
 			wantRes: true,
 		}, {
 			name:    "not exist",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			target:  4,
 			wantRes: false,
 		}, {
@@ -179,13 +179,13 @@ func TestSkipList_GetByIndex(t *testing.T) {
 	}{
 		{
 			name:    "basic",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			idx:     1,
 			wantVal: 2,
 			wantRes: true,
 		}, {
 			name:    "not exist",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			idx:     4,
 			wantVal: 0,
 			wantRes: false,
@@ -197,24 +197,24 @@ func TestSkipList_GetByIndex(t *testing.T) {
 			wantRes: false,
 		}, {
 			name:    "head",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 1, 1, 2, 3, 4, 4, 9, 9, 10}),
+			list:    SkipListOf(testCmp, []int{1, 1, 1, 2, 3, 4, 4, 9, 9, 10}),
 			idx:     0,
 			wantVal: 1,
 			wantRes: true,
 		}, {
 			name:    "tail",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 1, 1, 2, 3, 4, 4, 9, 9, 10}),
+			list:    SkipListOf(testCmp, []int{1, 1, 1, 2, 3, 4, 4, 9, 9, 10}),
 			idx:     9,
 			wantVal: 10,
 			wantRes: true,
 		}, {
 			name:    "out of range",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			idx:     6,
 			wantRes: false,
 		}, {
 			name:    "negative index",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			idx:     -1,
 			wantRes: false,
 		},
@@ -241,7 +241,7 @@ func TestSkipList_Peek(t *testing.T) {
 	}{
 		{
 			name:    "basic",
-			list:    SkipListFromSlice[int](testCmp, []int{1, 2, 3}),
+			list:    SkipListOf(testCmp, []int{1, 2, 3}),
 			wantVal: 1,
 			wantRes: true,
 		}, {
