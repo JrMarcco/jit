@@ -35,6 +35,32 @@ func KeysVals[K comparable, V any](m map[K]V) []MapKV[K, V] {
 	return keys
 }
 
+func Merge[K comparable, V any](maps ...map[K]V) map[K]V {
+	defaultMergeFunc := func(first, second V) V {
+		return second
+	}
+	return MergeFunc(defaultMergeFunc, maps...)
+}
+
+func MergeFunc[K comparable, V any](mergeFunc func(first, second V) V, maps ...map[K]V) map[K]V {
+	totalLen := 0
+	for _, m := range maps {
+		totalLen += len(m)
+	}
+
+	res := make(map[K]V, totalLen)
+	for _, m := range maps {
+		for k, v := range m {
+			if val, ok := res[k]; ok {
+				res[k] = mergeFunc(val, v)
+				continue
+			}
+			res[k] = v
+		}
+	}
+	return res
+}
+
 // ToMap converts a slice of keys and a slice of values to a map.
 func ToMap[K comparable, V any](keys []K, vals []V) (map[K]V, error) {
 	if keys == nil || vals == nil {

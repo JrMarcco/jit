@@ -146,3 +146,128 @@ func TestToMap(t *testing.T) {
 		assert.Equal(t, tc.wantRes, res)
 	}
 }
+
+func TestMerge(t *testing.T) {
+	tcs := []struct {
+		name    string
+		maps    []map[int]int
+		wantRes map[int]int
+	}{
+		{
+			name: "basic",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{4: 4, 5: 5, 6: 6},
+			},
+			wantRes: map[int]int{
+				1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
+			},
+		}, {
+			name: "with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{1: 10, 2: 20, 3: 30},
+			},
+			wantRes: map[int]int{
+				1: 10, 2: 20, 3: 30,
+			},
+		}, {
+			name: "diff len with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{1: 10, 2: 20, 3: 30, 4: 40},
+			},
+			wantRes: map[int]int{
+				1: 10, 2: 20, 3: 30, 4: 40,
+			},
+		}, {
+			name: "over two maps with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
+				{1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60},
+				{1: 10, 2: 20, 3: 30},
+				{1: 100, 2: 200, 3: 300},
+				{1: 1000, 2: 2000, 3: 3000},
+			},
+			wantRes: map[int]int{
+				1: 1000, 2: 2000, 3: 3000, 4: 40, 5: 50, 6: 60, 7: 7,
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			res := Merge(tc.maps...)
+			assert.Equal(t, tc.wantRes, res)
+		})
+	}
+}
+
+func TestMergeFunc(t *testing.T) {
+	tcs := []struct {
+		name      string
+		maps      []map[int]int
+		mergeFunc func(int, int) int
+		wantRes   map[int]int
+	}{
+		{
+			name: "basic",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{4: 4, 5: 5, 6: 6},
+			},
+			mergeFunc: func(a, b int) int {
+				return a + b
+			},
+			wantRes: map[int]int{
+				1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
+			},
+		}, {
+			name: "with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{1: 10, 2: 20, 3: 30},
+			},
+			mergeFunc: func(a, b int) int {
+				return a + b
+			},
+			wantRes: map[int]int{
+				1: 11, 2: 22, 3: 33,
+			},
+		}, {
+			name: "diff len with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3},
+				{1: 10, 2: 20, 3: 30, 4: 40},
+			},
+			mergeFunc: func(a, b int) int {
+				return a * b
+			},
+			wantRes: map[int]int{
+				1: 10, 2: 40, 3: 90, 4: 40,
+			},
+		}, {
+			name: "over two maps with key conflict",
+			maps: []map[int]int{
+				{1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7},
+				{1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60},
+				{1: 10, 2: 20, 3: 30},
+				{1: 100, 2: 200, 3: 300},
+				{1: 1000, 2: 2000, 3: 3000},
+			},
+			mergeFunc: func(a, b int) int {
+				return a + b
+			},
+			wantRes: map[int]int{
+				1: 1121, 2: 2242, 3: 3363, 4: 44, 5: 55, 6: 66, 7: 7,
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			res := MergeFunc(tc.mergeFunc, tc.maps...)
+			assert.Equal(t, tc.wantRes, res)
+		})
+	}
+}
