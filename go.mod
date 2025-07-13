@@ -2,7 +2,11 @@ module github.com/JrMarcco/easy-kit
 
 go 1.24
 
-require github.com/stretchr/testify v1.10.0
+require (
+	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/sync v0.16.0
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
