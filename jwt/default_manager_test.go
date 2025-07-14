@@ -10,62 +10,49 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	priPem = `-----BEGIN PRIVATE KEY-----
-MC4CAQAwBQYDK2VwBCIEIHXEAUN6Lp8Hdq8P0Mcv9mjIG1sgPWBf1Mh+OKP5HXvC
------END PRIVATE KEY-----`
-	pubPem = `-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAxCSxEyY/+A7T7EtXF7AHw4Zfklh/QdjG8fxfRFYZgY8=
------END PUBLIC KEY-----`
-)
-
-type ed25519User struct {
+type defaultUser struct {
 	Id uint64
 }
 
-func TestEd25519Manager(t *testing.T) {
+func TestDefaultManager(t *testing.T) {
+	key := "test-key"
+
 	tcs := []struct {
 		name           string
-		user           ed25519User
-		manager        Manager[ed25519User]
+		user           defaultUser
+		manager        Manager[defaultUser]
 		wantIssuer     string
 		wantEncryptErr error
 		wantDecryptErr error
 	}{
 		{
 			name: "basic",
-			user: ed25519User{Id: 1},
-			manager: func() *Ed25519Manager[ed25519User] {
-				manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).Build()
-				require.NoError(t, err)
-				return manager
+			user: defaultUser{Id: 1},
+			manager: func() *DefaultManager[defaultUser] {
+				return NewDefaultManagerBuilder[defaultUser](key, key).Build()
 			}(),
 			wantIssuer:     "easy-kit",
 			wantEncryptErr: nil,
 			wantDecryptErr: nil,
 		}, {
 			name: "expired",
-			user: ed25519User{Id: 1},
-			manager: func() *Ed25519Manager[ed25519User] {
-				manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).
+			user: defaultUser{Id: 1},
+			manager: func() *DefaultManager[defaultUser] {
+				return NewDefaultManagerBuilder[defaultUser](key, key).
 					ClaimsConfig(NewClaimsConfig(time.Millisecond)).
 					Build()
-				require.NoError(t, err)
-				return manager
 			}(),
 			wantIssuer:     "easy-kit",
 			wantEncryptErr: nil,
 			wantDecryptErr: jwt.ErrTokenExpired,
 		}, {
 			name: "with issuer",
-			user: ed25519User{Id: 1},
-			manager: func() *Ed25519Manager[ed25519User] {
+			user: defaultUser{Id: 1},
+			manager: func() *DefaultManager[defaultUser] {
 				cfg := NewClaimsConfig(time.Minute, WithIssuer("test-issuer"))
-				manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).
+				return NewDefaultManagerBuilder[defaultUser](key, key).
 					ClaimsConfig(cfg).
 					Build()
-				require.NoError(t, err)
-				return manager
 			}(),
 			wantIssuer:     "test-issuer",
 			wantEncryptErr: nil,
@@ -93,11 +80,13 @@ func TestEd25519Manager(t *testing.T) {
 	}
 }
 
-func TestEd25519Manager_InvalidToken(t *testing.T) {
-	manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).Build()
-	require.NoError(t, err)
+func TestDefaultManager_InvalidToken(t *testing.T) {
+	key := "test-key"
 
-	_, err = manager.Encrypt(ed25519User{Id: 1})
+	manager := NewDefaultManagerBuilder[defaultUser](key, key).Build()
+
+	var err error
+	_, err = manager.Encrypt(defaultUser{Id: 1})
 	require.NoError(t, err)
 
 	_, err = manager.Decrypt("invalid token")
