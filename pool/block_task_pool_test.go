@@ -9,11 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type shutdownNowRes struct {
-	tasks []Task
-	err   error
-}
-
 func poolInternalState(p *BlockTaskPool) int32 {
 	for {
 		state := atomic.LoadInt32(&p.state)
@@ -21,7 +16,323 @@ func poolInternalState(p *BlockTaskPool) int32 {
 			return state
 		}
 	}
+}
 
+func TestTaskPool_NewBlockTaskPool(t *testing.T) {
+	t.Parallel()
+
+	tcs := []struct {
+		name      string
+		initG     int32
+		queueSize int32
+		wantErr   error
+	}{
+		{
+			name:      "basic",
+			initG:     1,
+			queueSize: 1,
+			wantErr:   nil,
+		}, {
+			name:      "queue size is negative",
+			initG:     1,
+			queueSize: -1,
+			wantErr:   errInvalidParam,
+		}, {
+			name:      "queue size is 0",
+			initG:     1,
+			queueSize: 0,
+			wantErr:   nil,
+		}, {
+			name:      "queue size greater than 0",
+			initG:     1,
+			queueSize: 1,
+			wantErr:   nil,
+		}, {
+			name:      "init goroutines is negative",
+			initG:     -1,
+			queueSize: 1,
+			wantErr:   errInvalidParam,
+		}, {
+			name:      "init goroutines is 0",
+			initG:     0,
+			queueSize: 1,
+			wantErr:   errInvalidParam,
+		}, {
+			name:      "init goroutines greater than 0",
+			initG:     1,
+			queueSize: 1,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			p, err := NewBlockTaskPool(tc.initG, tc.queueSize)
+			assert.ErrorIs(t, err, tc.wantErr)
+
+			if err == nil {
+				assert.NotNil(t, p)
+				assert.Equal(t, stateCreated, poolInternalState(p))
+
+				assert.Equal(t, tc.initG, p.initG)
+				assert.Equal(t, int(tc.queueSize), cap(p.queue))
+			}
+		})
+	}
+
+	t.Run("with max idle time", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithMaxIdleTime(time.Second))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(1), p.coreG)
+		assert.Equal(t, int32(1), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+		assert.Equal(t, time.Second, p.maxIdleTime)
+	})
+
+	t.Run("with submit timeout", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithSubmitTimeout(time.Second))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(1), p.coreG)
+		assert.Equal(t, int32(1), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+		assert.Equal(t, time.Second, p.submitTimeout)
+	})
+
+	t.Run("with core goroutine", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithCoreG(2))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(2), p.coreG)
+		assert.Equal(t, int32(2), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+	})
+
+	t.Run("with max goroutine", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithMaxG(2))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(2), p.coreG)
+		assert.Equal(t, int32(2), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+	})
+
+	t.Run("with core and max goroutine", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithCoreG(2), WithMaxG(4))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(2), p.coreG)
+		assert.Equal(t, int32(4), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+		assert.Equal(t, int32(4), p.maxG)
+	})
+
+	t.Run("with core != init and max == init", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithCoreG(2), WithMaxG(1))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(2), p.coreG)
+		assert.Equal(t, int32(2), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+	})
+
+	t.Run("with core == init and max != init", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithCoreG(1), WithMaxG(4))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, int32(4), p.coreG)
+		assert.Equal(t, int32(4), p.maxG)
+		assert.Equal(t, 3, cap(p.queue))
+	})
+
+	t.Run("with queue backlog rate", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithQueueBacklogRate(0.5))
+		assert.NoError(t, err)
+		assert.NotNil(t, p)
+		assert.Equal(t, stateCreated, poolInternalState(p))
+		assert.Equal(t, int32(1), p.initG)
+		assert.Equal(t, 3, cap(p.queue))
+		assert.Equal(t, 0.5, p.queueBacklogRate)
+	})
+
+	t.Run("queue backlog rate is negative", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithQueueBacklogRate(-1))
+		assert.ErrorIs(t, err, errInvalidParam)
+		assert.Nil(t, p)
+	})
+
+	t.Run("queue backlog rate is greater than 1", func(t *testing.T) {
+		t.Parallel()
+
+		p, err := NewBlockTaskPool(1, 3, WithQueueBacklogRate(1.1))
+		assert.ErrorIs(t, err, errInvalidParam)
+		assert.Nil(t, p)
+	})
+}
+
+func TestTaskPool_Submit(t *testing.T) {
+	t.Parallel()
+
+	tcs := []struct {
+		name       string
+		poolFunc   func(t *testing.T) *BlockTaskPool
+		submitFunc func(t *testing.T, p *BlockTaskPool)
+		wantErr    error
+	}{
+		{
+			name: "basic",
+			poolFunc: func(t *testing.T) *BlockTaskPool {
+				p, err := NewBlockTaskPool(1, 3)
+				assert.NoError(t, err)
+				assert.NotNil(t, p)
+				return p
+			},
+			submitFunc: func(t *testing.T, p *BlockTaskPool) {
+				var err error
+				for range 3 {
+					err = p.Submit(context.Background(), TaskFunc(func(ctx context.Context) error {
+						return nil
+					}))
+					assert.NoError(t, err)
+				}
+			},
+		}, {
+			name: "nil task",
+			poolFunc: func(t *testing.T) *BlockTaskPool {
+				p, err := NewBlockTaskPool(1, 1)
+				assert.NoError(t, err)
+				assert.NotNil(t, p)
+				return p
+			},
+			submitFunc: func(t *testing.T, p *BlockTaskPool) {
+				err := p.Submit(context.Background(), nil)
+				assert.ErrorIs(t, err, errInvalidTask)
+			},
+		}, {
+			name: "submit timeout",
+			poolFunc: func(t *testing.T) *BlockTaskPool {
+				p, err := NewBlockTaskPool(1, 1, WithSubmitTimeout(time.Millisecond))
+				assert.NoError(t, err)
+				assert.NotNil(t, p)
+				return p
+			},
+			submitFunc: func(t *testing.T, p *BlockTaskPool) {
+				done := make(chan struct{})
+
+				err := p.Submit(context.Background(), TaskFunc(func(ctx context.Context) error {
+					<-done
+					return nil
+				}))
+				assert.NoError(t, err)
+
+				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+				err = p.Submit(ctx, TaskFunc(func(ctx context.Context) error {
+					<-done
+					return nil
+				}))
+				cancel()
+				assert.ErrorIs(t, err, context.DeadlineExceeded)
+				close(done)
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			p := tc.poolFunc(t)
+			assert.NotNil(t, p)
+			assert.Equal(t, poolInternalState(p), stateCreated)
+
+			tc.submitFunc(t, p)
+		})
+	}
+}
+
+func TestTaskPool_Shutdown(t *testing.T) {
+	t.Parallel()
+
+	p1, err := NewBlockTaskPool(1, 1)
+	assert.NoError(t, err)
+	assert.NotNil(t, p1)
+	assert.Equal(t, poolInternalState(p1), stateCreated)
+
+	done, err := p1.Shutdown()
+	assert.Nil(t, done)
+	assert.ErrorIs(t, err, errPoolIsNotRunning)
+	assert.Equal(t, poolInternalState(p1), stateCreated)
+
+	err = p1.Start()
+	assert.NoError(t, err)
+	assert.Equal(t, poolInternalState(p1), stateRunning)
+
+	done, err = p1.Shutdown()
+	assert.NotNil(t, done)
+	assert.NoError(t, err)
+	assert.Equal(t, poolInternalState(p1), stateClosing)
+	<-done
+	assert.Equal(t, poolInternalState(p1), stateClosed)
+
+	done, err = p1.Shutdown()
+	assert.Nil(t, done)
+	assert.ErrorIs(t, err, errPoolIsClosed)
+
+	p2, err := NewBlockTaskPool(1, 3)
+	assert.NoError(t, err)
+	assert.NotNil(t, p2)
+	assert.Equal(t, poolInternalState(p2), stateCreated)
+
+	tasks, err := p2.ShutdownNow()
+	assert.Equal(t, 0, len(tasks))
+	assert.ErrorIs(t, err, errPoolIsNotRunning)
+	assert.Equal(t, poolInternalState(p2), stateCreated)
+
+	err = p2.Start()
+	assert.NoError(t, err)
+	assert.Equal(t, poolInternalState(p2), stateRunning)
+
+	tasks, err = p2.ShutdownNow()
+	assert.Equal(t, 0, len(tasks))
+	assert.NoError(t, err)
+	assert.Equal(t, poolInternalState(p2), stateClosed)
+
+	_, err = p2.ShutdownNow()
+	assert.ErrorIs(t, err, errPoolIsClosed)
 }
 
 func runningPool(t *testing.T, initG, queueSize int32) *BlockTaskPool {

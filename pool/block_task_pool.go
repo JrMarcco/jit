@@ -447,7 +447,7 @@ func (p *BlockTaskPool) ShutdownNow() ([]Task, error) {
 			return nil, errPoolIsClosing
 		}
 
-		if atomic.CompareAndSwapInt32(&p.state, stateRunning, stateClosing) {
+		if atomic.CompareAndSwapInt32(&p.state, stateRunning, stateClosed) {
 			close(p.queue)
 			p.interruptCancelFunc()
 
@@ -556,10 +556,10 @@ func WithErrHandleTimeout(errHandleTimeout time.Duration) option.Opt[BlockTaskPo
 // NewBlockTaskPool 创建任务池。
 func NewBlockTaskPool(initG int32, queueSize int32, opts ...option.Opt[BlockTaskPool]) (*BlockTaskPool, error) {
 	if initG <= 0 {
-		return nil, fmt.Errorf("[easy-kit] invalid init goroutine count: %d, init goroutine should be greater than 0", initG)
+		return nil, fmt.Errorf("%w: init goroutine should be greater than 0", errInvalidParam)
 	}
 	if queueSize < 0 {
-		return nil, fmt.Errorf("[easy-kit] invalid queue size: %d, queue size should be greater or equal to 0", queueSize)
+		return nil, fmt.Errorf("%w: queue size should be greater or equal to 0", errInvalidParam)
 	}
 
 	p := &BlockTaskPool{
@@ -602,7 +602,7 @@ func NewBlockTaskPool(initG int32, queueSize int32, opts ...option.Opt[BlockTask
 		idMap: make(map[int32]struct{}),
 	}
 	if p.queueBacklogRate < float64(0) || p.queueBacklogRate > float64(1) {
-		return nil, fmt.Errorf("[easy-kit] invalid queue backlog rate: %f, queue backlog rate should be in [0, 1]", p.queueBacklogRate)
+		return nil, fmt.Errorf("%w: queue backlog rate should be in [0, 1]", errInvalidParam)
 	}
 	return p, nil
 }
