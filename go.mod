@@ -1,10 +1,10 @@
 module github.com/JrMarcco/easy-kit
 
-go 1.24
+go 1.25
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.2.2
-	github.com/stretchr/testify v1.10.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
