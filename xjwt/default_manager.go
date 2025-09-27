@@ -82,7 +82,7 @@ func (m *DefaultManager[T]) Decrypt(token string, opts ...jwt.ParserOption) (Cus
 		opts...,
 	)
 	if err != nil || !jwtToken.Valid {
-		return CustomClaims[T]{}, fmt.Errorf("[easy-kit] failed to verify jwt token: %w", err)
+		return CustomClaims[T]{}, fmt.Errorf("[jit] failed to verify jwt token: %w", err)
 	}
 	cc, _ := jwtToken.Claims.(*CustomClaims[T])
 	return *cc, nil

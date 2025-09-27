@@ -55,11 +55,11 @@ func NewEd25519ManagerBuilder[T any](encryptKey string, decryptKey string) *Ed25
 func loadPrivateKey(priPem string) (ed25519.PrivateKey, error) {
 	priKeyBlock, _ := pem.Decode([]byte(priPem))
 	if priKeyBlock == nil {
-		return nil, fmt.Errorf("[easy-kit] failed to decode private key PEM")
+		return nil, fmt.Errorf("[jit] failed to decode private key PEM")
 	}
 	priKey, err := x509.ParsePKCS8PrivateKey(priKeyBlock.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("[easy-kit] failed to parse private key: %w", err)
+		return nil, fmt.Errorf("[jit] failed to parse private key: %w", err)
 	}
 	return priKey.(ed25519.PrivateKey), nil
 }
@@ -68,11 +68,11 @@ func loadPrivateKey(priPem string) (ed25519.PrivateKey, error) {
 func loadPublicKey(pubPem string) (ed25519.PublicKey, error) {
 	pubKeyBlock, _ := pem.Decode([]byte(pubPem))
 	if pubKeyBlock == nil {
-		return nil, fmt.Errorf("[easy-kit] failed to decode public key PEM")
+		return nil, fmt.Errorf("[jit] failed to decode public key PEM")
 	}
 	publicKey, err := x509.ParsePKIXPublicKey(pubKeyBlock.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("[easy-kit] failed to parse public key: %w", err)
+		return nil, fmt.Errorf("[jit] failed to parse public key: %w", err)
 	}
 	return publicKey.(ed25519.PublicKey), nil
 }
@@ -108,14 +108,14 @@ func (m *Ed25519Manager[T]) Decrypt(token string, opts ...jwt.ParserOption) (Cus
 		&CustomClaims[T]{},
 		func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
-				return nil, fmt.Errorf("[easy-kit] unexpected signing method: %v", token.Header["alg"])
+				return nil, fmt.Errorf("[jit] unexpected signing method: %v", token.Header["alg"])
 			}
 			return m.pubKey, nil
 		},
 		opts...,
 	)
 	if err != nil || !jwtToken.Valid {
-		return CustomClaims[T]{}, fmt.Errorf("[easy-kit] failed to verify jwt token: %w", err)
+		return CustomClaims[T]{}, fmt.Errorf("[jit] failed to verify jwt token: %w", err)
 	}
 	cc, _ := jwtToken.Claims.(*CustomClaims[T])
 	return *cc, nil

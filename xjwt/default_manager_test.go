@@ -31,7 +31,7 @@ func TestDefaultManager(t *testing.T) {
 			manager: func() *DefaultManager[defaultUser] {
 				return NewDefaultManagerBuilder[defaultUser](key, key).Build()
 			}(),
-			wantIssuer:     "easy-kit",
+			wantIssuer:     "jit",
 			wantEncryptErr: nil,
 			wantDecryptErr: nil,
 		}, {
@@ -42,7 +42,7 @@ func TestDefaultManager(t *testing.T) {
 					ClaimsConfig(NewClaimsConfig(time.Millisecond)).
 					Build()
 			}(),
-			wantIssuer:     "easy-kit",
+			wantIssuer:     "jit",
 			wantEncryptErr: nil,
 			wantDecryptErr: jwt.ErrTokenExpired,
 		}, {

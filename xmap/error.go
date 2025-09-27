@@ -5,5 +5,5 @@ import (
 )
 
 var (
-	ErrNilComparator = errors.New("[easy-kit] comparator can not be nil")
+	ErrNilComparator = errors.New("[jit] comparator can not be nil")
 )

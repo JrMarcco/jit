@@ -7,37 +7,37 @@ import (
 )
 
 var (
-	ErrSameRBNode   = errors.New("[easy-kit] cannot insert same red-black tree node")
-	ErrNodeNotFound = errors.New("[easy-kit] cannot find node in red-black tree")
+	ErrSameRBNode   = errors.New("[jit] cannot insert same red-black tree node")
+	ErrNodeNotFound = errors.New("[jit] cannot find node in red-black tree")
 )
 
 func NilErr(name string) error {
-	return fmt.Errorf("[easy-kit] %s is nil", name)
+	return fmt.Errorf("[jit] %s is nil", name)
 }
 
 func ErrIndexOutOfBounds(length int, index int) error {
-	return fmt.Errorf("[easy-kit] index %d out of bounds for length %d", index, length)
+	return fmt.Errorf("[jit] index %d out of bounds for length %d", index, length)
 }
 
 func ErrEmptySlice() error {
-	return fmt.Errorf("[easy-kit] slice is empty")
+	return fmt.Errorf("[jit] slice is empty")
 }
 
 func ErrInvalidKeyValLen() error {
-	return fmt.Errorf("[easy-kit] keys and vals have different lengths")
+	return fmt.Errorf("[jit] keys and vals have different lengths")
 }
 
 func ErrInvalidInterval(interval time.Duration) error {
-	return fmt.Errorf("[easy-kit] invalid interval: %v, expected interval value should greater than 0", interval)
+	return fmt.Errorf("[jit] invalid interval: %v, expected interval value should greater than 0", interval)
 }
 
 func ErrInvalidMaxInterval(maxInterval time.Duration) error {
 	return fmt.Errorf(
-		"[easy-kit] invalid max interval: %v, expected max interval value should greater than init interval",
+		"[jit] invalid max interval: %v, expected max interval value should greater than init interval",
 		maxInterval,
 	)
 }
 
 func ErrRetryTimeExhausted(latestErr error) error {
-	return fmt.Errorf("[easy-kit] retry time exhausted, the latest error: %w", latestErr)
+	return fmt.Errorf("[jit] retry time exhausted, the latest error: %w", latestErr)
 }

@@ -40,7 +40,7 @@ func TestEd25519Manager(t *testing.T) {
 				require.NoError(t, err)
 				return manager
 			}(),
-			wantIssuer:     "easy-kit",
+			wantIssuer:     "jit",
 			wantEncryptErr: nil,
 			wantDecryptErr: nil,
 		}, {
@@ -53,7 +53,7 @@ func TestEd25519Manager(t *testing.T) {
 				require.NoError(t, err)
 				return manager
 			}(),
-			wantIssuer:     "easy-kit",
+			wantIssuer:     "jit",
 			wantEncryptErr: nil,
 			wantDecryptErr: jwt.ErrTokenExpired,
 		}, {

@@ -28,16 +28,16 @@ const (
 )
 
 var (
-	errTaskRunningPanic = fmt.Errorf("[eask-kit] panic when running task, stack")
+	errTaskRunningPanic = fmt.Errorf("[jit] panic when running task, stack")
 
-	errInvalidParam = fmt.Errorf("[easy-kit] invalid param")
-	errInvalidTask  = fmt.Errorf("[easy-kit] invalid task")
+	errInvalidParam = fmt.Errorf("[jit] invalid param")
+	errInvalidTask  = fmt.Errorf("[jit] invalid task")
 
-	errPoolIsNotRunning = fmt.Errorf("[easy-kit] task pool is not running")
-	errPoolIsRunning    = fmt.Errorf("[easy-kit] task pool is running")
-	errPoolIsClosing    = fmt.Errorf("[easy-kit] task pool is closing")
-	errPoolIsClosed     = fmt.Errorf("[easy-kit] task pool is closed")
-	errPoolIsLocked     = fmt.Errorf("[easy-kit] task pool is locked")
+	errPoolIsNotRunning = fmt.Errorf("[jit] task pool is not running")
+	errPoolIsRunning    = fmt.Errorf("[jit] task pool is running")
+	errPoolIsClosing    = fmt.Errorf("[jit] task pool is closing")
+	errPoolIsClosed     = fmt.Errorf("[jit] task pool is closed")
+	errPoolIsLocked     = fmt.Errorf("[jit] task pool is locked")
 )
 
 var _ Task = (*TaskFunc)(nil)
@@ -59,7 +59,7 @@ func (t *taskWrapper) Run(ctx context.Context) (err error) {
 			buf = buf[:runtime.Stack(buf, false)]
 
 			slog.Error(
-				"[easy-kit] panic when running task",
+				"[jit] panic when running task",
 				"panic", r,
 				"stack", string(buf),
 			)
@@ -206,7 +206,7 @@ func (p *BlockTaskPool) trySubmit(ctx context.Context, task Task, state int32) (
 				id := atomic.AddInt32(&p.id, 1)
 				go p.newG(id)
 
-				slog.Info("[easy-kit] create new goroutine", "id", id)
+				slog.Info("[jit] create new goroutine", "id", id)
 			}
 
 			// 任务池还未运行 或 当前不允许创建 goroutine，直接成功提交

@@ -83,5 +83,5 @@ func ExampleRetry() {
 	// Output:
 	// a business logic
 	// a business logic
-	// [easy-kit] retry time exhausted, the latest error: biz error
+	// [jit] retry time exhausted, the latest error: biz error
 }

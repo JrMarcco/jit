@@ -3,7 +3,7 @@ package xjwt
 import (
 	"time"
 
-	"github.com/JrMarcco/easy-kit/bean/option"
+	"github.com/JrMarcco/jit/bean/option"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -42,7 +42,7 @@ func WithJtiGenerator(jtiGenerator func() string) option.Opt[ClaimsConfig] {
 // 其他参数可以通过 option.Opt 自定义。
 func NewClaimsConfig(expiration time.Duration, opts ...option.Opt[ClaimsConfig]) ClaimsConfig {
 	cfg := ClaimsConfig{
-		Issuer:       "easy-kit", // 默认签发人
+		Issuer:       "jit", // 默认签发人
 		Expiration:   expiration,
 		JtiGenerator: func() string { return "" },
 	}
