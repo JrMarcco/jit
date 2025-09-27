@@ -1,8 +1,8 @@
 package tree
 
 import (
-	easykit "github.com/JrMarcco/easy-kit"
-	"github.com/JrMarcco/easy-kit/internal/errs"
+	"github.com/JrMarcco/jit"
+	"github.com/JrMarcco/jit/internal/errs"
 )
 
 // color specifies the color of the node
@@ -25,7 +25,7 @@ const (
 type RBTree[K any, V any] struct {
 	root *rbNode[K, V]
 	size int64
-	cmp  easykit.Comparator[K]
+	cmp  jit.Comparator[K]
 }
 
 func (rbt *RBTree[K, V]) Size() int64 {
@@ -651,7 +651,7 @@ func (rbt *RBTree[K, V]) midOrderTraversal(visitFn func(node *rbNode[K, V])) {
 	}
 }
 
-func NewRBTree[K any, V any](cmp easykit.Comparator[K]) *RBTree[K, V] {
+func NewRBTree[K any, V any](cmp jit.Comparator[K]) *RBTree[K, V] {
 	return &RBTree[K, V]{
 		root: nil,
 		size: 0,

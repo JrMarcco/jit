@@ -3,13 +3,13 @@ package list
 import (
 	"math/rand/v2"
 
-	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/jit"
 )
 
 const MaxLevel = 32
 
 type SkipList[T any] struct {
-	cmp       easykit.Comparator[T]
+	cmp       jit.Comparator[T]
 	head      *skipListNode[T]
 	currLevel int
 	size      int
@@ -187,7 +187,7 @@ func (sl *SkipList[T]) Len() int {
 	return sl.size
 }
 
-func NewSkipList[T any](cmp easykit.Comparator[T]) *SkipList[T] {
+func NewSkipList[T any](cmp jit.Comparator[T]) *SkipList[T] {
 	return &SkipList[T]{
 		cmp: cmp,
 		head: &skipListNode[T]{
@@ -199,7 +199,7 @@ func NewSkipList[T any](cmp easykit.Comparator[T]) *SkipList[T] {
 	}
 }
 
-func SkipListOf[T any](cmp easykit.Comparator[T], slice []T) *SkipList[T] {
+func SkipListOf[T any](cmp jit.Comparator[T], slice []T) *SkipList[T] {
 	sl := NewSkipList[T](cmp)
 	for _, v := range slice {
 		sl.Insert(v)

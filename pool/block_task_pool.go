@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/JrMarcco/easy-kit/bean/option"
+	"github.com/JrMarcco/jit/bean/option"
 )
 
 const (

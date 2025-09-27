@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JrMarcco/easy-kit/bean/option"
+	"github.com/JrMarcco/jit/bean/option"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,16 +26,6 @@ func runningPool(t *testing.T, initG, queueSize int32, opts ...option.Opt[BlockT
 	assert.Equal(t, poolInternalState(p), stateCreated)
 	assert.NoError(t, p.Start())
 	assert.Equal(t, poolInternalState(p), stateRunning)
-	return p
-}
-
-func closedPool(t *testing.T, initG, queueSize int32) *BlockTaskPool {
-	p := runningPool(t, initG, queueSize)
-
-	tasks, err := p.ShutdownNow()
-	assert.NoError(t, err)
-	assert.Equal(t, len(tasks), 0)
-	assert.Equal(t, poolInternalState(p), stateClosed)
 	return p
 }
 

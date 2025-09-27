@@ -1,4 +1,4 @@
-package easykit
+package jit
 
 import (
 	"testing"

@@ -6,8 +6,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/JrMarcco/easy-kit/bean/option"
-	"github.com/JrMarcco/easy-kit/set"
+	"github.com/JrMarcco/jit/bean/option"
+	"github.com/JrMarcco/jit/xset"
 )
 
 type RefCopier[S any, D any] struct {
@@ -110,7 +110,7 @@ func (rc *RefCopier[S, D]) defaultCopyConf() copyConf {
 	cc := newCopyConf()
 
 	if rc.defaultConf.ignoreFds != nil {
-		ignoreFds := set.NewMapSet[string](rc.defaultConf.ignoreFds.Size())
+		ignoreFds := xset.NewMapSet[string](rc.defaultConf.ignoreFds.Size())
 
 		for _, fd := range rc.defaultConf.ignoreFds.Elems() {
 			ignoreFds.Add(fd)

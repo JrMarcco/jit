@@ -3,11 +3,11 @@ package list
 import (
 	"testing"
 
-	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/jit"
 	"github.com/stretchr/testify/assert"
 )
 
-var testCmp = func() easykit.Comparator[int] {
+var testCmp = func() jit.Comparator[int] {
 	return func(a, b int) int { return a - b }
 }()
 

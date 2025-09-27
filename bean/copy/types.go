@@ -1,9 +1,9 @@
 package copier
 
 import (
-	"github.com/JrMarcco/easy-kit/bean/copy/converter"
-	"github.com/JrMarcco/easy-kit/bean/option"
-	"github.com/JrMarcco/easy-kit/set"
+	"github.com/JrMarcco/jit/bean/copy/converter"
+	"github.com/JrMarcco/jit/bean/option"
+	"github.com/JrMarcco/jit/xset"
 )
 
 // Copier is a type that can copy a source object to a destination object.
@@ -15,7 +15,7 @@ type Copier[S any, D any] interface {
 type convertFunc func(src any) (any, error)
 
 type copyConf struct {
-	ignoreFds *set.MapSet[string]
+	ignoreFds *xset.MapSet[string]
 	covertFds map[string]convertFunc
 }
 
@@ -37,7 +37,7 @@ func IgnoreFds(fds ...string) option.Opt[copyConf] {
 		}
 
 		if cc.ignoreFds == nil {
-			cc.ignoreFds = set.NewMapSet[string](len(fds))
+			cc.ignoreFds = xset.NewMapSet[string](len(fds))
 		}
 
 		for _, fd := range fds {

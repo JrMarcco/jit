@@ -3,12 +3,12 @@ package tree
 import (
 	"testing"
 
-	easykit "github.com/JrMarcco/easy-kit"
-	"github.com/JrMarcco/easy-kit/internal/errs"
+	"github.com/JrMarcco/jit"
+	"github.com/JrMarcco/jit/internal/errs"
 	"github.com/stretchr/testify/assert"
 )
 
-var testCmp = func() easykit.Comparator[int] {
+var testCmp = func() jit.Comparator[int] {
 	return func(a, b int) int { return a - b }
 }()
 
@@ -60,7 +60,7 @@ func validRBNode[K any, V any](node *rbNode[K, V], cnt int, num int) bool {
 func TestNewRBTree(t *testing.T) {
 	tcs := []struct {
 		name    string
-		cmp     easykit.Comparator[int]
+		cmp     jit.Comparator[int]
 		wantRes bool
 	}{
 		{

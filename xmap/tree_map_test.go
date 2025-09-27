@@ -3,20 +3,20 @@ package xmap
 import (
 	"testing"
 
-	easykit "github.com/JrMarcco/easy-kit"
-	"github.com/JrMarcco/easy-kit/slice"
+	"github.com/JrMarcco/jit"
+	"github.com/JrMarcco/jit/xslice"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func cmp() easykit.Comparator[int] {
+func cmp() jit.Comparator[int] {
 	return func(a, b int) int { return a - b }
 }
 
 func TestNewTreeMapWithMap(t *testing.T) {
 	tcs := []struct {
 		name     string
-		cmp      easykit.Comparator[int]
+		cmp      jit.Comparator[int]
 		m        map[int]string
 		wantKeys []int
 		wantVals []string
@@ -149,7 +149,7 @@ func TestTreeMap_Del(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			m := slice.ToMapWithVal(tc.initData, func(elem kv) (int, string) { return elem.key, elem.val })
+			m := xslice.ToMapWithVal(tc.initData, func(elem kv) (int, string) { return elem.key, elem.val })
 			treeMap, err := NewTreeMapWithMap(cmp(), m)
 			require.NoError(t, err)
 

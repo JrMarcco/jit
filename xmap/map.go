@@ -1,6 +1,6 @@
 package xmap
 
-import "github.com/JrMarcco/easy-kit/internal/errs"
+import "github.com/JrMarcco/jit/internal/errs"
 
 // Keys return a slice of the keys in the map.
 func Keys[K comparable, V any](m map[K]V) []K {

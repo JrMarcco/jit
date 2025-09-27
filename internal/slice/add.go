@@ -1,7 +1,7 @@
 package slice
 
 import (
-	"github.com/JrMarcco/easy-kit/internal/errs"
+	"github.com/JrMarcco/jit/internal/errs"
 )
 
 func Add[T any](slice []T, index int, item T) ([]T, error) {

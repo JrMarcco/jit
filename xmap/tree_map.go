@@ -3,10 +3,10 @@ package xmap
 import (
 	"errors"
 
-	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/jit"
 
-	"github.com/JrMarcco/easy-kit/internal/errs"
-	"github.com/JrMarcco/easy-kit/internal/tree"
+	"github.com/JrMarcco/jit/internal/errs"
+	"github.com/JrMarcco/jit/internal/tree"
 )
 
 var _ imap[any, any] = (*TreeMap[any, any])(nil)
@@ -55,14 +55,14 @@ func (tm *TreeMap[K, V]) KeyVals() ([]K, []V) {
 	return tm.tree.Kvs()
 }
 
-func NewTreeMap[K any, V any](cmp easykit.Comparator[K]) (*TreeMap[K, V], error) {
+func NewTreeMap[K any, V any](cmp jit.Comparator[K]) (*TreeMap[K, V], error) {
 	if cmp == nil {
 		return nil, ErrNilComparator
 	}
 	return &TreeMap[K, V]{tree: tree.NewRBTree[K, V](cmp)}, nil
 }
 
-func NewTreeMapWithMap[K comparable, V any](cmp easykit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
+func NewTreeMapWithMap[K comparable, V any](cmp jit.Comparator[K], m map[K]V) (*TreeMap[K, V], error) {
 	treeMap, err := NewTreeMap[K, V](cmp)
 	if err != nil {
 		return nil, err

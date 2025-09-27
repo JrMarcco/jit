@@ -1,7 +1,7 @@
 package xmap
 
 import (
-	"github.com/JrMarcco/easy-kit/xsync"
+	"github.com/JrMarcco/jit/xsync"
 )
 
 type Hashable interface {

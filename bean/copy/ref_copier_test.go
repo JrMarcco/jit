@@ -3,7 +3,7 @@ package copier
 import (
 	"testing"
 
-	easykit "github.com/JrMarcco/easy-kit"
+	"github.com/JrMarcco/jit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,13 +27,13 @@ func TestRefCopier_Copy(t *testing.T) {
 
 				return copier.Copy(&basicSrc{
 					IntVal: 1,
-					IntPtr: easykit.Ptr(1),
+					IntPtr: jit.Ptr(1),
 					StrVal: "test",
 				})
 			},
 			wantDst: &basicDst{
 				IntVal: 1,
-				IntPtr: easykit.Ptr(1),
+				IntPtr: jit.Ptr(1),
 				StrVal: "test",
 			},
 		}, {
@@ -98,13 +98,13 @@ func TestRefCopier_Copy(t *testing.T) {
 				return copier.Copy(&complexSrc{
 					Basic: basicSrc{
 						IntVal: 1,
-						IntPtr: easykit.Ptr(1),
+						IntPtr: jit.Ptr(1),
 						StrVal: "test",
 					},
 					Embed: embedSrc{
 						Basic: basicSrc{
 							IntVal: 1,
-							IntPtr: easykit.Ptr(1),
+							IntPtr: jit.Ptr(1),
 							StrVal: "test",
 						},
 						Slice: &sliceSrc{
@@ -118,13 +118,13 @@ func TestRefCopier_Copy(t *testing.T) {
 			wantDst: &complexDst{
 				Basic: basicDst{
 					IntVal: 1,
-					IntPtr: easykit.Ptr(1),
+					IntPtr: jit.Ptr(1),
 					StrVal: "test",
 				},
 				Embed: embedDst{
 					Basic: basicDst{
 						IntVal: 1,
-						IntPtr: easykit.Ptr(1),
+						IntPtr: jit.Ptr(1),
 						StrVal: "test",
 					},
 					Slice: &sliceDst{
@@ -227,13 +227,13 @@ func BenchmarkRefCopier_Copy(b *testing.B) {
 			_, err := copier.Copy(&complexSrc{
 				Basic: basicSrc{
 					IntVal: 1,
-					IntPtr: easykit.Ptr(1),
+					IntPtr: jit.Ptr(1),
 					StrVal: "test",
 				},
 				Embed: embedSrc{
 					Basic: basicSrc{
 						IntVal: 1,
-						IntPtr: easykit.Ptr(1),
+						IntPtr: jit.Ptr(1),
 						StrVal: "test",
 					},
 					Slice: &sliceSrc{

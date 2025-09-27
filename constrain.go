@@ -1,4 +1,4 @@
-package easykit
+package jit
 
 // RealNumber is a constraint that matches any integer or floating-point type.
 type RealNumber interface {
