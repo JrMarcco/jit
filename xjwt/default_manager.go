@@ -38,7 +38,7 @@ func (b *DefaultManagerBuilder[T]) SigningMethod(signingMethod jwt.SigningMethod
 
 func NewDefaultManagerBuilder[T any](encryptKey string, decryptKey string) *DefaultManagerBuilder[T] {
 	return &DefaultManagerBuilder[T]{
-		config: NewClaimsConfig(24 * time.Hour),
+		config: NewClaimsConfig(WithExpiration(24 * time.Hour)),
 
 		signingMethod: jwt.SigningMethodHS256,
 		encryptKey:    encryptKey,

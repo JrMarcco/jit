@@ -43,7 +43,7 @@ func (b *Ed25519ManagerBuilder[T]) Build() (*Ed25519Manager[T], error) {
 
 func NewEd25519ManagerBuilder[T any](encryptKey string, decryptKey string) *Ed25519ManagerBuilder[T] {
 	return &Ed25519ManagerBuilder[T]{
-		config:     NewClaimsConfig(24 * time.Hour), // 默认 24 小时过期
+		config:     NewClaimsConfig(WithExpiration(24 * time.Hour)), // 默认 24 小时过期
 		encryptKey: encryptKey,
 		decryptKey: decryptKey,
 	}

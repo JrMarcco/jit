@@ -48,7 +48,7 @@ func TestEd25519Manager(t *testing.T) {
 			user: ed25519User{Id: 1},
 			manager: func() *Ed25519Manager[ed25519User] {
 				manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).
-					ClaimsConfig(NewClaimsConfig(time.Millisecond)).
+					ClaimsConfig(NewClaimsConfig(WithExpiration(time.Millisecond))).
 					Build()
 				require.NoError(t, err)
 				return manager
@@ -60,7 +60,7 @@ func TestEd25519Manager(t *testing.T) {
 			name: "with issuer",
 			user: ed25519User{Id: 1},
 			manager: func() *Ed25519Manager[ed25519User] {
-				cfg := NewClaimsConfig(time.Minute, WithIssuer("test-issuer"))
+				cfg := NewClaimsConfig(WithExpiration(time.Minute), WithIssuer("test-issuer"))
 				manager, err := NewEd25519ManagerBuilder[ed25519User](priPem, pubPem).
 					ClaimsConfig(cfg).
 					Build()

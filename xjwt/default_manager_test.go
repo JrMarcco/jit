@@ -39,7 +39,7 @@ func TestDefaultManager(t *testing.T) {
 			user: defaultUser{Id: 1},
 			manager: func() *DefaultManager[defaultUser] {
 				return NewDefaultManagerBuilder[defaultUser](key, key).
-					ClaimsConfig(NewClaimsConfig(time.Millisecond)).
+					ClaimsConfig(NewClaimsConfig(WithExpiration(time.Millisecond))).
 					Build()
 			}(),
 			wantIssuer:     "jit",
@@ -49,7 +49,7 @@ func TestDefaultManager(t *testing.T) {
 			name: "with issuer",
 			user: defaultUser{Id: 1},
 			manager: func() *DefaultManager[defaultUser] {
-				cfg := NewClaimsConfig(time.Minute, WithIssuer("test-issuer"))
+				cfg := NewClaimsConfig(WithExpiration(time.Minute), WithIssuer("test-issuer"))
 				return NewDefaultManagerBuilder[defaultUser](key, key).
 					ClaimsConfig(cfg).
 					Build()
