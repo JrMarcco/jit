@@ -129,7 +129,7 @@ type BlockTaskPool struct {
 	// 参数 initG / coreG / maxG 的作用是分层管理 goroutine。
 	// 三个参数将 goroutine 分为 3 个区间:
 	//
-	//		[1	  , initG]:	永久 goroutine
+	//		[1	  , initG]:	永久 goroutine。
 	//		(initG, coreG]: 核心 goroutine（带超时机制的 goroutine）
 	//						当 goroutine 处于这个区间，在退出前（maxIdleTime）尝试拿任务，
 	//						拿到任务则继续执行，没拿到则超时退出。
@@ -191,9 +191,9 @@ func (p *BlockTaskPool) Submit(ctx context.Context, task Task) error {
 
 // trySubmit 尝试提交一个任务。
 func (p *BlockTaskPool) trySubmit(ctx context.Context, task Task, state int32) (bool, error) {
-	// 锁定 task pool
+	// 锁定 task pool。
 	if atomic.CompareAndSwapInt32(&p.state, state, stateLocked) {
-		// 当 trySubmit 成功返回时解除锁定 task pool
+		// 当 trySubmit 成功返回时解除锁定 task pool。
 		defer atomic.CompareAndSwapInt32(&p.state, stateLocked, state)
 
 		select {
@@ -201,7 +201,7 @@ func (p *BlockTaskPool) trySubmit(ctx context.Context, task Task, state int32) (
 			return false, ctx.Err()
 		case p.queue <- task:
 			if state == stateRunning && p.allowToCreateG() {
-				// 任务池处于运行状态且允许创建新 goroutine 执行任务
+				// 任务池处于运行状态且允许创建新 goroutine 执行任务。
 				p.increaseG(1)
 				id := atomic.AddInt32(&p.id, 1)
 				go p.newG(id)
@@ -209,7 +209,7 @@ func (p *BlockTaskPool) trySubmit(ctx context.Context, task Task, state int32) (
 				slog.Info("[jit] create new goroutine", "id", id)
 			}
 
-			// 任务池还未运行 或 当前不允许创建 goroutine，直接成功提交
+			// 任务池还未运行 或 当前不允许创建 goroutine，直接成功提交。
 			return true, nil
 		default:
 			return false, nil
@@ -319,10 +319,10 @@ func (p *BlockTaskPool) newG(id int32) {
 				}(err)
 			}
 
-			// 任务执行完成后的判断
+			// 任务执行完成后的判断。
 			p.mu.Lock()
 
-			// 检查队列中是否还有任务需要执行
+			// 检查队列中是否还有任务需要执行。
 			noTaskToExec := len(p.queue) == 0 || int32(len(p.queue)) < p.totalG
 			// 临时 goroutine 的快速退出策略
 			if noTaskToExec && p.coreG < p.totalG && p.totalG <= p.maxG {
@@ -383,10 +383,10 @@ func (p *BlockTaskPool) Start() error {
 		}
 
 		if atomic.CompareAndSwapInt32(&p.state, stateCreated, stateLocked) {
-			// 计算允许创建的 goroutine 数量
+			// 计算允许创建的 goroutine 数量。
 			cntG := p.initG
 
-			// 需求的 goroutine 数 = 队列中任务数 - 初始 goroutine 数
+			// 需求的 goroutine 数 = 队列中任务数 - 初始 goroutine 数。
 			needG := int32(len(p.queue)) - p.initG
 			if needG > 0 {
 				// 允许创建的最大 goroutine 数
@@ -424,7 +424,7 @@ func (p *BlockTaskPool) Shutdown() (<-chan struct{}, error) {
 		}
 
 		if atomic.CompareAndSwapInt32(&p.state, stateRunning, stateClosing) {
-			// 关闭任务队列，拒绝新任务提交
+			// 关闭任务队列，拒绝新任务提交。
 			// 注意：
 			//  close(p.queue) 只是把 chan 标记为“关闭”状态，
 			//	此时工作 goroutine 还可以读取 chan 的剩余数据，知道 chan 的数据全被取走。
@@ -496,7 +496,7 @@ func (p *BlockTaskPool) sendState(ch chan<- State, timestamp int64) {
 	select {
 	case ch <- p.getState(timestamp):
 	default:
-		// 发送失败直接丢弃
+		// 发送失败直接丢弃。
 	}
 }
 
